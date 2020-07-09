@@ -1,56 +1,28 @@
-public String unlockPDF(String strSource,String strPassword,String strDestination) throws Exception
+static String getCurrentDateTimeInMilliSec() throws Exception
 	{
-		String strMsg = "";
-		try {
-			File inputFile = new File(strSource);
-			File outputFolder = new File(strDestination);
-			
-			if(! inputFile.exists() || ! inputFile.isFile())
+		Date date = new Date();
+		return (new SimpleDateFormat(ConstantHolder.DateFormatInMilliSec).format(date));
+	}
+	static String getFileExtenstion(File fileName)
+	{
+		// method used to get the file extention
+		String strExtention = "";
+		if(fileName != null && fileName.exists())
+		{
+			String strFileName = fileName.getName();
+			if(strFileName.contains("."))
 			{
-				throw new Exception("Input File does not exist.");
+				strExtention = strFileName.substring(strFileName.lastIndexOf(".")+1, strFileName.length()).toUpperCase();
 			}
-			String strExtention = ReUser.getFileExtenstion(inputFile);
-			if(strExtention.isEmpty() || !strExtention.equalsIgnoreCase("pdf"))
-			{
-				throw new Exception("Input file is not of the type pdf.");
-			}
-			if(! outputFolder.exists() || ! outputFolder.isDirectory())
-			{
-				throw new Exception("Ouput path is wrong.");
-			}
-			 String strCurrentTimeWithExtnention = ReUser.getCurrentDateTimeInMilliSec()
-					 						.replace("-", "_")
-					 						.replace(" ", "_")
-					 						.replace(":", "_")+".pdf";
-			 String strOutFile = outputFolder.getAbsolutePath()+File.separator+strCurrentTimeWithExtnention ;
-			 
-			 PdfReader reader = new PdfReader(Files.readAllBytes(inputFile.toPath()), strPassword.getBytes());
-			 reader.unethicalreading = true ;
-			 PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(strOutFile));	
-			 stamper.setEncryption("".getBytes(), "".getBytes(),0 , PdfWriter.ENCRYPTION_AES_256);
-			 stamper.close();
-			 reader.close();
-			 strMsg = "success";
-		} catch (Exception e) {
-			// log the exception
-			System.out.println("Eror occured while unlocking PDf Document, details are , "+e.getMessage());
-			throw e ;
 		}
-		
-		return strMsg ;
 		 
-    }
+		return strExtention ;
+	}
 	
 	
-	<dependency>
-	    <groupId>org.bouncycastle</groupId>
-	    <artifactId>bcprov-jdk15on</artifactId>
-	    <version>1.64</version>
-	</dependency>
 	
-	<!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
-	<dependency>
-	    <groupId>com.itextpdf</groupId>
-	    <artifactId>itextpdf</artifactId>
-	    <version>5.5.4</version>
-	</dependency>
+	public class ConstantHolder {
+	static String DateFormatInMilliSec = "yyyy-MM-dd HH:mm:ss.SSS";
+        static String dateFroramt = "yyyy-MM-dd";
+
+}
