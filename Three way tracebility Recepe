@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="shortcut icon" href="<%hosturl%>MKS_ALM_2009/Logo_Varroc.png">
+<script type="text/javascript" src="<%hosturl%>/MKS_ALM_2009/gantt/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="<%hosturl%>/MKS_ALM_2009/gantt/jquery.techbykapil.excelexportjs.js"></script>
+<title>LnT Three Way Traceability Matrix</title>
+<style type="text/css">
+	body {background-color:#FFFFFF; font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#666666;}
+	a    {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#006699; text-decoration:none;}
+	p    {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000000; font-weight: bold; line-height:20px; margin-right:30px; margin-left:5px;}
+	th   {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 12px; color:#666666; line-height:20px; margin-right:30px; margin-left:5px;}
+	td   {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#666666; line-height:20px; margin-right:30px; margin-left:5px;}
+	h1   {font-family: Arial, Helvetica, sans-serif; font-size: 18pt; color: #000000; font-weight: bold;}
+	h2   {font-family: Arial, Helvetica, sans-serif; font-size: 16pt; color: #000000; font-weight: bold;}
+	h3   {font-family: Arial, Helvetica, sans-serif; font-size: 20pt; color: #000000; font-weight: bold;}
+	
+	.title {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 18px; font-weight:lighter; color:#3366CC; margin-left:5px}
+	.title_white {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 28px; font-weight:lighter; color:#FFFFFF; margin-left:5px; margin-right:5px;}
+	
+	.heading {background-color:#8baee5;position:relative;}
+	.header {text-align: center}
+	p.header {text-align: center;font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#666666; line-height:20px; margin-right:30px; margin-left:5px;}
+	.white_bg {background-color:#FFFFFF;}
+	.white_fg {color:#FFFFFF;}
+	.date {font-size: 11px; color: #666666; font-weight: bold; text-align: right;}
+	.footer {font-size: 9px; color: #999999; }
+	
+	img {border:none}
+	
+	.warning {color: #FF6666; font-weight: bold}
+	.detailrows .detailheading {padding: 2px 8px; background-color: #B6CCDD; font-weight: bold; text-align: center}
+	.detailrows th {padding: 2px 8px; background-color: #60607A; color: #FFFFFF; font-weight: bold; text-align: right; vertical-align: top}
+	.detailrows td {padding: 2px 8px; background-color: #EAF4FD}
+	.detailcols .detailheading {padding: 2px 8px; background-color: #B6CCDD; font-weight: bold; text-align: center}
+	.detailcols th {padding: 2px 8px; background-color: #60607A; color: #FFFFFF; font-weight: bold}
+	.detailcols td {padding: 2px 8px; background-color: #EAF4FD}
+	.detaillevels .detailheading {padding: 2px 8px; background-color: #B6CCDD; font-weight: bold; text-align: center}
+	.detaillevels th {padding: 2px 8px; background-color: #60607A; color: #FFFFFF; font-weight: bold}
+	
+	.odd_row  { background-color: #ECECEC; }
+	.even_row { background-color: #F5F5F5; }
+	.level1 { background-color: #5E87A8; padding: 2px 2px 2px 2px; }
+	.level2 { background-color: #7696B4; padding: 2px 2px 2px 2px; }
+	.level2_indent { background-color: #7696B4; padding: 2px 2px 2px 12px; }
+	.level3 { background-color: #92B0C7; padding: 2px 2px 2px 2px; }
+	.level3_indent { background-color: #92B0C7; padding: 2px 2px 2px 22px; }
+	.level4 { background-color: #B6CCDD; padding: 2px 2px 2px 2px; }
+	.level4_indent { background-color: #B6CCDD; padding: 2px 2px 2px 32px; }
+	.level5 { background-color: #D5E5F0; padding: 2px 2px 2px 2px; }
+	.level5_indent { background-color: #D5E5F0; padding: 2px 2px 2px 42px; }
+	.level6 { background-color: #EAF4FD; padding: 2px 2px 2px 2px; }
+	.level6_indent { background-color: #EAF4FD; padding: 2px 2px 2px 52px; }
+	.description {font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #000000; text-align: left}
+	.warning {font-family: Arial, Helvetica, sans-serif; font-size: 15pt; color: #FF0000; font-weight: bold; text-align: center}
+	.section_heading {text-align:center; color:#0000C0; font-weight: bold; font-size: 9pt; }
+	.field_headings {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000000; font-weight: bold}
+	.failed {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: red; font-weight: bold}
+	.passed {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #1aa310; font-weight: bold}
+	.section1 {font-family: Arial, Helvetica, sans-serif; font-size: 9pt; background-color: #F8F3F7}
+	.details {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000000;}
+	.full_line {height:2px; width:100%; color: #000000; background:#000000}
+	.footer {font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #999999}
+	.result_header {background: #C0C0C0;}
+	.pass_row {color:red;font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold}
+	.fail_row {color:black;}
+	.nottested_row {background: #F1F1FF;}
+	.button1 {
+	display:inline-block;float:left;background-color:#C0C0C0;color:black;border: 2px solid #008CBA;text-align:center;display:inline-block;font-size:18px;width:150px;height:30px;border-radius:2px;margin: 4px 2px;transition-duration: 0.4s;transition-duration: 0.4s;cursor: pointer;
+	}
+	.button1:hover {
+    background-color: #008CBA;
+    color: white;
+}
+</style>
+<script type="text/javascript">
+function trim(str) { 
+			str = str.replace(/^\s+|\s+$/g, '');
+			str = str.replace(/^(\&nbsp\;)+|(\&nbsp\;)+$/g, '');
+			return str;
+		}
+function getImgTag(health1){
+			if (trim(health1) != "" && trim(health1) != "Out of Range")
+				return "<img src='<%hosturl%>MKS_ALM_2009/report_images/" + health1.toLowerCase() + ".png'/>";
+			else
+				return "";
+}
+</script>
+</head>
+<%dateformat MMMM dd, yyyy - hh:mm a%>
+<%sortby ID+%>
+<body>
+<script type="text/javascript">
+<!--
+	// Initialize the count for items run against the report (used for report refresh).
+	var item_count=0;
+//-->
+</script>
+<table width="100%" cellspacing="3" cellpadding="3">
+<tr><td colspan="2">
+<table width="100%" height="70px;" class="heading">
+<tr>
+    <td><img src="<%hosturl%>MKS_ALM_2009/Logo_Varroc.png" height="60" width="60" margin-left="10"</img></td>
+    <td class="title_white" align="center" width="100%" colspan="2">LnT Three Way Traceability Matrix</td>
+    <td>&nbsp;</td>
+</tr>
+</table>
+<p class="header">This Report displays Documents Details with its all contents and Traces and their related content also.</p>
+<p class="date"><%currentdate%></p>
+</td></tr>
+<!--<table width="100%" cellspacing="3" cellpadding="3">-->
+<%begindetail%>
+<script type="text/javascript">
+<!--
+	// Check if a requirement item selected for the report.
+	if("Test Session" != "Test Session") {document.write("<tr class=\"warning\"><td colspan=\"2\"><p><br>*** <u>WARNING:</u> You are running this report using the wrong item type!  This report should be run off a \"Test Plan\" item. ***<p><br></td></tr>");}
+
+	// If first item, just add it to the item count.  Otherwise add to previous items separated by a comma.
+	item_count++;
+	var report_items;
+	if(item_count == 1){
+	report_items=<%ID%>
+	}
+	else{
+	report_items=report_items+","+<%ID%>
+	}
+//-->
+</script>
+<tr>
+	<td width="100%" colspan="2">
+		<table width="100%" cellspacing="3" cellpadding="3" border="0" id="tblExport">
+		<tr>
+			<td align="center"><h3><%Document Short Title%> (Document ID <a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%<%builtin ID%>%>" target="_blank"><%<%builtin ID%>%></a>)</h3></td>
+		</tr>
+		<tr>
+		<td width="100%">
+		<div class="section_heading">Document Overview</div>
+			<table width="100%" style="background: #dbe7f9;" cellspacing="0" cellpadding="3" border="1">
+			<tr>
+				<td colspan="2"><span class="field_headings">Summary:</span> <span class="details"><%Summary%></span></td>
+			</tr>
+			<tr>
+				<td width="50%"><span class="field_headings">Document Author:</span> <span class="details"><%Document Author%></span></td> 
+				<td width="50%"><span class="field_headings">Assigned Reviewers:</span> <span class="details"><%Reviewers Required%></span></td>
+			</tr>
+			<tr>
+				<td width="50%"><span class="field_headings">Project:</span> <span class="details"><%Project%></span></td> 
+				<td width="50%"><span class="field_headings">State:</span> <span class="details"><%State%></span></td>
+			</tr>
+            </table><br/>
+			
+			<div class="section_heading">Document Content</div>
+			<table width="100%" style="background: #ffffff;" class="section1" cellspacing="0" cellpadding="3" border="1">
+			<tr class="result_header">
+				<th align="center" class="field_headings" style="background-color:#c7ccc9;">Specification ID</th>
+				<th align="center" class="field_headings" style="background-color:#c7ccc9;">Section</th>
+				<th align="center" class="field_headings" style="background-color:#c7ccc9;">State</th>
+				<th align="center" class="field_headings" style="background-color:#c7ccc9;">Text</th>
+				<th align="center" class="field_headings" style="background-color:#c7ccc9;">Trace Status</th>
+				<th align="center" class="field_headings" style="background-color:#c7ccc9;">Assigned User</th>
+			
+				<th align="center" class="field_headings" style="background-color:#e08e86;">Test Case ID</th>
+				<th align="center" class="field_headings" style="background-color:#e08e86;">Description</th>
+				<th align="center" class="field_headings" style="background-color:#e08e86;">Test Action</th>
+				<th align="center" class="field_headings" style="background-color:#e08e86;">Expected Results</th>
+				<th align="center" class="field_headings" style="background-color:#e08e86;">Assigned User</th>
+				<th align="center" class="field_headings" style="background-color:#e08e86;">Last Result</th>
+				
+				<th align="center" class="field_headings" style="background-color:#e1efa2;">Test Session ID</th>
+				<th align="center" class="field_headings" style="background-color:#e1efa2;">Test Session Verdict</th>
+				<th align="center" class="field_headings" style="background-color:#e1efa2;">Related Item</th>
+				
+			</tr>
+			<%beginrelationshipsdetail Query[(walkdocordered[<%<%builtin ID%>%>]recurseinclude)]%>
+
+			<script type="text/javascript">
+			var category = "<%Relationship <%builtin Category%>%>";
+			if (category != "Heading" && category != "Comment")
+			{
+			document.write('<tr>');
+			var c=1,z=0,zz=0,zzz=0,zzzz=0,q=0,w=0,ww=0,s=0,ss=0,a=0,aa=0;
+			<%beginrelationshipsdetailL2 Validated By%>
+			aa=1;
+			a=0;
+			z++;
+			<%begintestresultdetailL2 verdict=&combinedverdictfilter %>
+			zz++;
+			a=1;
+			<%endtestresultdetailL2%>
+			if(a==0)
+			{
+			zz++;
+			}
+			<%endrelationshipsdetailL2%>
+			if(aa==0)
+			{
+			zz=1;
+			}
+			if(c==1)
+			{
+			//document.write('<td class="field_headings" align="center" rowspan='+zz+'><%Relationship <%virtual Section%>%></td>');
+			//document.write('<td class="field_headings" valign="top" rowspan='+zz+'><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship Document ID%>" target="_blank"><%Relationship Document ID%></a></td>');
+			
+			document.write('<td class="field_headings" valign="top" rowspan='+zz+'><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship <%builtin ID%>%></a></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zz+'><%Relationship <%virtual Section%>%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zz+'><%Relationship State%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zz+'><%Relationship Text%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zz+'>');
+			document.write(getImgTag("<%Relationship Trace Status%>"));
+			document.write('<%Relationship Trace Status%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zz+'><%Relationship Assigned User%></td>');
+			c=0;
+			if(aa==0)
+			{
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			}
+			}
+			<%beginrelationshipsdetailL2 Validated BY%>
+			zzz=0,ss=0,ww=0,zzzz=0;
+			<%begintestresultdetailL2 verdict=&combinedverdictfilter %>
+			zzzz=1;
+			zzz++;
+			<%endtestresultdetailL2%>
+			if(zzzz==0)
+			{
+			zzz=1;
+			}
+			if(s>0)
+			{
+			document.write('<tr>');
+			w=1;
+			}
+			document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 <%builtin ID%>%>" target="_blank"><%RelationshipL2 <%builtin ID%>%></a></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><%RelationshipL2 Text%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><%RelationshipL2 Test Action%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><%RelationshipL2 Expected Results%></td>');
+			document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><%RelationshipL2 Assigned User%></td>');
+			//document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><%RelationshipL2 <%builtin Category%>%></td>');
+			
+			//document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 <%builtin Document ID%>%>" target="_blank"><%RelationshipL2 <%builtin Document ID%>%></a></td>');
+			
+			var suspect="<%RelationshipL2 Last Result%>";
+					rowclass="field_headings";
+					if ( suspect == "Failed" ) 
+					{
+						document.write('<td class="failed" valign="top" rowspan='+zzz+'><%RelationshipL2 Last Result%></td>');
+					}
+					else if ( suspect == "Passed" || suspect == "Passed With Deviation") 
+					{
+						document.write('<td class="passed" valign="top" rowspan='+zzz+'><%RelationshipL2 Last Result%></td>');
+					}
+					else
+					{
+					document.write('<td class="field_headings" valign="top" rowspan='+zzz+'><%RelationshipL2 Last Result%></td>');
+					}
+			if(zzzz==0)
+			{
+			document.write('<td></td>');
+			document.write('<td></td>');
+			document.write('<td></td>');
+			}
+			<%begintestresultdetailL2 verdict=&combinedverdictfilter %>
+			if(ss>0)
+			{
+			document.write('<tr>');
+			ww=1;
+			}
+			document.write('<td class="field_headings" valign="top"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%testresult Session ID%>" target="_blank"><%testresult Session ID%></a></td>');
+			var verdict="<%testresult Verdict%>";
+					rowclass="field_headings";
+					if ( verdict == "Failed" ) 
+					{
+						document.write('<td class="failed" valign="top"><%testresult Verdict%></td>');
+					}
+					else if ( verdict == "Passed" || verdict == "Passed With Deviation") 
+					{
+						document.write('<td class="passed" valign="top"><%testresult Verdict%></td>');
+					}
+					else
+					{
+					document.write('<td class="field_headings" valign="top"><%testresult Verdict%></td>');
+					}
+			var related_item=0;
+			<%begintestresultitemdetailL2%>
+			var link_string='<%testresultitem ID%>'.toString();
+			var link='<%testresultitem ID%>'.toString().substring(link_string.indexOf('>')+1,link_string.lastIndexOf('<'));
+			//var link_opner='<a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=' +link+ '" target="_blank">';
+			document.write('<td class="failed" valign="top"><%testresultitem Type%>:<a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=' +link+ '" target="_blank">' +link+ '</a></td>');
+			//document.write(link);
+			//document.write('</a></td>');
+			related_item=1;
+			<%endtestresultitemdetailL2%>
+			if(related_item==0)
+			{
+			document.write('<td></td>');
+			}
+			ss=1;
+			if(ww=1)
+			{
+			document.write('</tr>');
+			}
+			<%endtestresultdetailL2%>
+			s=1;
+			if(w=1)
+			{
+			document.write('</tr>');
+			}
+			<%endrelationshipsdetailL2%>
+			document.write('</tr>');
+			}
+			else;
+			</script>		
+			<%endrelationshipsdetail%>
+			
+			</table><br/>
+		</td>
+		</tr>
+	</table>
+</td>
+</tr>
+<%enddetail%>
+<tr><td colspan="2"><hr class="full_line"></td></tr>
+<tr class="footer">
+<td><button onclick="myFunction()" class="button1">Print Report</button>
+<button id="btnExport" class="button1">Export To Excel</button>
+</td>
+	<td>
+	<span style="font-size:12px;margin-right:100px;">&copy; L&T Engineering</span>
+		<script type="text/javascript">
+			document.write("<a href=\"<%hosturl%>im/runreport?selection=LnT Three Way Traceability Matrix&issues="+report_items+"\">");
+		</script>
+		<img src="<%hosturl%>MKS_ALM_2009/refresh.gif" border="0" width="30" height="24" align="middle" style="float:right;"><span style="float:right;font-size:12px;">Re-Run Report</span></a>
+	</td>
+</tr>
+</table>
+<script>
+function myFunction() {
+    window.print();
+}
+</script>
+<script>
+$(document).ready(function () {
+        $("#btnExport").click(function () {
+            $("#tblExport").excelexportjs({
+                containerid: "tblExport"
+               , datatype: 'table'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

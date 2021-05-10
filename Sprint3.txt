@@ -1,0 +1,649 @@
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+:: sprint 3
+---------------------------------------------------------------------------------------------------------------------------------------------------------	
+42110(chart)
+	script:
+		   im createquery --name="All Controls/PFMEA Risks with zero Prevents/Controls Traces"  --description="This query is created for making the Risk Redundancy chart" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="( ((not(relationship.exists forwards using [Controls])) and (subquery[All PFMEA Risks])) or ((not(relationship.exists forwards using [Prevents])) and (subquery[All Controls])))" "All Controls/PFMEA Risks with zero Prevents/Controls Traces" --fields="ID,Category,Item/Function,CTQ,Process / Part Name,Failure Mode,Cause,Effect,Trace Status,Document ID,Project"
+		   
+		   im createchart --name="Redundant PFMEA Risks/Controls" --chartType=Distribution --chartTitle="Redundant PFMEA Risks/Controls" --description="PFMEA Risks not controlling a DFMEA & Controlls not preventing a PFMEA" --fieldValues="Type=Control,PFMEA[PFMEA Risk]" --graphStyle=VerticalStackedBar --groupingValues="Category=Process Risk,Process Control,Maintenance Control,Control Point"  --isShowZeroFieldCount --isShowZeroGroupingCount --query="All Controls/PFMEA Risks with zero Prevents/Controls Traces" --shareWith=g=everyone,Administrators:modify --sharedAdmin --is3D --displayLegend --legendPosition=Right --legendTitle="Category:" --noisAutoColors --dataColors='255,0,0;0,0,0;204,204,204;102,102,102'
+		   
+		   im editdashboard --layoutFile="RiskManagementDashboard.xml" "Risk Management Dashboard"
+		   
+	status:Done
+	mod: this should go to the velux risk dashboard 
+	
+	
+44036
+
+	im createquery --name="All Test Requisition Created by Me"  --description="All Test Requisitions Created by Me" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition='((field[Created By] = me ) and (field[Type] = "Test Requisition"))'
+	
+
+	im createfield --name="Test Requisition for Action" --multiValued --defaultBrowseQuery="All Test Requisitions"  --type=relationship --defaultColumns="ID,Type,Test Type,Project Stage,Summary,Product Maturity,Test Report Required,Final Verification,Accredited Test Documentation,Required By,State,Project,Assigned Group,Importance Category,Flow/Resource Efficiency" --allowedTypes="Action:Test Requisition" --relationshipBrowseStyle=browseStyle=query,queryOption=specificQueries,specificQueriesList="All Test Requisitions::All Test Requisition Created by Me"
+
+
+	im editfield --name="Action for Test Requisition" --displayName="Action for Test Requisition" --multiValued --defaultBrowseQuery="All Actions" --defaultColumns="ID,Type,Summary,Action Type,Required By,State,Assigned User,Project" --allowedTypes="Test Requisition:Action" --relationshipBrowseStyle=browseStyle=query,queryOption=specificQueries,specificQueriesList="All Actions:: All My Open Actions" "Backward Test Requisition for Action"
+	
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Action" "Test Requisition for Action"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Test Requisition" "Action for Test Requisition"
+	
+	im editfield %CONNECTION_INFO%  --picks="Change of Requirement Specification:1:%TEMP_IMAGES%\changeofreq.png,Move to FMEA:2:%TEMP_IMAGES%\MovetoFMEA.gif,No Action:3:%TEMP_IMAGES%\No Action.png,Production Process:4:%TEMP_IMAGES%\ProductionProcess.gif,Redesign:5:%TEMP_IMAGES%\redesign.png,SPRP:6:%TEMP_IMAGES%\SPRP.png,Simulation/Calculation:7:%TEMP_IMAGES%\SimulationCalculation.gif,Development Test:8:%TEMP_IMAGES%\Test.png,PQV Test:9:%TEMP_IMAGES%\Test.png,User Guide:10:%TEMP_IMAGES%\Userguide.gif" "Action Type"
+
+	
+	im editfield %CONNECTION_INFO% --overrideForType="Action" --relevanceRule='(field[Action Type]="PQV Test")' "Test Requisition for Action"
+	
+	:: update the PT of both objects- testrequisition13.xml,action.xml
+	
+	 im edittype --addfieldRelationship=constraintrule="(((field[\"State\"] = \"Completed\") or (field[\"State\"] = \"Completed/Rescore\")) and (field[\"Action Type\"] = \"PQV Test\")):Test Requisition for Action=:all,mandatory,description=Making the Test Requisition for Action mandatory on Completed state if Action Type equls PQV Test" "Action"
+	
+	
+	
+	
+40899	
+
+		im createfield --name="Compromised By" --multiValued --defaultBrowseQuery="All DFMEA Risks"  --type=relationship --defaultColumns="ID,Category,Failure Mode,Cause,Effect,RPN,Risk Profile,Trace Status,Document ID" --allowedTypes="Requirement:DFMEA Risk;Module:DFMEA Risk" --relationshipBrowseStyle=browseStyle=query,queryOption=specificQueries,specificQueriesList="All DFMEA Risks" --description="This Requirement is being compromised by either one or many DFMEA Risks in the Compromised By relationship field"
+
+
+		im editfield --name="Compromises" --displayName="Compromises" --multiValued --defaultBrowseQuery="All Mandatory Requirements" --defaultColumns="ID,Category,Relevant,DoP/DoC,Text, Required Performance,Robustness Evaluation,R&D Comment,Trace Status,Document ID" --allowedTypes="DFMEA Risk:Requirement,Module" --relationshipBrowseStyle=browseStyle=query,queryOption=specificQueries,specificQueriesList="All Mandatory Requirements::All Expectable Requirements::All Module Requirements" --description="This DFMEA Risk compromises either one or many Requirements in the Compromises relationship field"  "Backward Compromised By"
+	
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Requirement" "Compromised By"
+	
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Risk" "Compromises"
+
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Module" "Compromised By"
+		
+		::update pt
+		requirement6
+		module3
+		dfmea
+		
+		 
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "MKS Solution" "MKS.RQ.trace.<DFMEA Risk>" "Controlled By:<PFMEA Risk>;Verified By:<Test>;Compromises:<Requirement,Module>"
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "MKS Solution" "MKS.RQ.trace.<Requirement>" "Satisfied By:<Design>;Verified By:<Test>;Modelled By:<Model Element>;Mitigates:<Failure Mode>;Functional Allocation:<Model Element,Functional Element>;Structural Allocation:<Model Element,Structural Element>;Compromised By:<DFMEA Risk>"
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "MKS Solution" "MKS.RQ.trace.<Module>" "Verified By:<Test>;Compromised By:<DFMEA Risk>"
+ 
+		::update upstream trace view & downstream trace view settings
+		
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "MKS Solution" "MKS.RQ.rm.content.trace.item1.viewSettings" "\"title=Downstream Traces\",\"tabTitle=Downstream Traces\",\"traverseFields=Fulfilled By,Contains,Decomposes To,Satisfied By,Validated By,Verified By,Modelled By,Caused By,Mitigated By,Implemented By,Controlled By,Prevented By,Compromised By\",\"structureFieldDisplayFormat={Type}-{Category} {ID} - {Text} {Failure Mode} {Summary}\",\"structureFieldIconDisplayField=Category\",\"displayForwardFields=false\",\"displayBackwardFields=false\",\"expandLevel=3\",\"saveSettings=false\""
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "MKS Solution" "MKS.RQ.rm.content.trace.item2.viewSettings" "\"title=Upstream Traces\",\"tabTitle=Upstream Traces\",\"traverseFields=Fulfils,Contains,Decomposed From,Satisfies,Validates,Verifies,Models,Causes,Mitigates,Implements,Controls,Prevents,Compromises\",\"structureFieldDisplayFormat={Type}-{Category} {ID} - {Text} {Failure Mode} {Summary}\",\"structureFieldIconDisplayField=Category\",\"displayForwardFields=false\",\"displayBackwardFields=false\",\"expandLevel=3\",\"saveSettings=false\""
+		
+		status: done
+		mod :
+40886
+			
+	
+	 im editquery --queryDefinition='( (subquery[All DFMEA Risks]) and (field[CTQ] = "Yes"))' --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All CTQ DFMEA Risks"
+	 
+	 im editquery  --queryDefinition="((subquery[All DFMEA Risks]) and (not (relationship[State] forwards using [Actions]=Completed)) and ((field[Severity]=9,10) or (field[RPN]>100)))" --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All DFMEA Risks without Completed Action Where RPN > 100 or Severity > 8"
+	 
+	 im editquery  --queryDefinition="((subquery[All PFMEA Risks]) and (not (relationship[State] forwards using [Actions]=Completed)) and ((field[Severity]=9,10) or (field[RPN]>100)))" --fields="ID,Category,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All PFMEA Risks without Completed Action Where RPN > 100 or Severity > 8"
+	 
+	 im editquery --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All DFMEA Risks"
+	 
+	 im editquery --fields="ID,Category,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All PFMEA Risks"
+	 
+	 im editquery --fields="ID,Category,CTQ,Process / Part Number,Process / Part Name,Drawing Number,Standard Number,Key Characteristic Name,Product / Process Specification,Trace Status,Document ID,Project" "All Controls"
+	 
+	 im editquery --fields="ID,Category,Item/Function,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All High or Very High DFMEA Risks"  
+	 
+	 
+	 im createquery --name="All DFMEA Risks with Open Actions Assigned to Me" --image="DFMEA Risk.gif" --description="A query used to find DFMEA Risk items that are linked to an Open Action assigned to you. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Actions,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" --queryDefinition="((relationship[Action Phase] forwards using [Actions]=Open)and (relationship[Assigned User] forwards using [Actions]=me) and (subquery[All DFMEA Risks]))"
+	 
+	 im createquery --name="All DFMEA Risks with Closed Actions Assigned to Me" --image="DFMEA Risk.gif" --description="A query used to find DFMEA Risk items that are linked to a Closed Action assigned to you. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Actions,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" --queryDefinition="((relationship[Action Phase] forwards using [Actions]=Closed)and (relationship[Assigned User] forwards using [Actions]=me) and (subquery[All DFMEA Risks]))"
+	 
+	 im createquery --name="All CTQ PFMEA Risks" --image="PFMEA Risk.gif" --description="A query used to find PFMEA Risk items that are flagged as a CTQ risk. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify --fields="ID,Category,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" --queryDefinition="((subquery[All PFMEA Risks]) and (field[CTQ] =Yes))"
+	 
+	 im createquery --name="All CTQ Controls" --image="Control.png" --description="A query used to find Control items that are flagged as CTQ. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify --fields="ID,Category,CTQ,Process / Part Number,Process / Part Name,Drawing Number,Standard Number,Key Characteristic Name,Product / Process Specification,Trace Status,Document ID,Project" --queryDefinition="( (subquery[All Controls])and (field[CTQ] =Yes))"
+	 
+43947
+		
+		integrity createmksdomaingroup --name="IE&E" --description="Read & Write access to PFMEA Risks in PFMEA Documents. Read access to DFMEA Risks in DFMEA Documents and Controls in Control Plan Documents. CANNOT edit DFMEA Risks in DFMEA Documents and Controls in Control Plan Documents  (cannot modify traces, actions or fields)" --members=""
+		
+		integrity createmksdomaingroup --name="QAM" --description="Read & Write access to DFMEA Risks in DFMEA Documents, PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents" --members=""
+		
+		integrity createmksdomaingroup --name="Global Quality Project Manager" --description="Read & Write access to DFMEA Risks in DFMEA Documents, PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents" --members=""
+		
+		integrity createmksdomaingroup --name="Quality Engineer" --description="Read & Write access to DFMEA Risks in DFMEA Documents, PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents" --members=""
+		
+		integrity createmksdomaingroup --name="Production" --description="Read & Write access to PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents. Read access to DFMEA Risks in DFMEA Documents. CANNOT edit DFMEA Risks in DFMEA Documents (cannot modify traces, actions or fields)." --members=""
+		
+		integrity editmksdomaingroup --description="Read & Write access to DFMEA Risks in DFMEA Documents and PFMEA Risks in PFMEA Documents. Read access to Controls in Control Plan Documents. CANNOT edit Controls in Control Plan Documents (cannot modify traces, actions or fields)." "C&C"
+		
+		im importgroup "IE&E"
+		im importgroup "QAM"
+		im importgroup "Global Quality Project Manager"
+		im importgroup "Quality Engineer"
+		im importgroup "Production"
+		
+		im editgroup --description="Read & Write access to DFMEA Risks in DFMEA Documents and PFMEA Risks in PFMEA Documents. Read access to Controls in Control Plan Documents. CANNOT edit Controls in Control Plan Documents (cannot modify traces, actions or fields)." "C&C"
+		
+		im editgroup --description="Read & Write access to DFMEA Risks in DFMEA Documents and PFMEA Risks in PFMEA Documents. Read access to Controls in Control Plan Documents. CANNOT edit Controls in Control Plan Documents (cannot modify traces, actions or fields)." "VINC"
+		
+		im editgroup --description="Read & Write access to PFMEA Risks in PFMEA Documents. Read access to DFMEA Risks in DFMEA Documents and Controls in Control Plan Documents. CANNOT edit DFMEA Risks in DFMEA Documents and Controls in Control Plan Documents  (cannot modify traces, actions or fields)" "IE&E"
+		
+		im editgroup --description="Read & Write access to DFMEA Risks in DFMEA Documents, PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents" "QAM"
+		
+		im editgroup --description="Read & Write access to DFMEA Risks in DFMEA Documents, PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents" "Global Quality Project Manager"
+		
+		im editgroup --description="Read & Write access to DFMEA Risks in DFMEA Documents, PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents" "Quality Engineer"
+		
+		im editgroup --description="Read & Write access to PFMEA Risks in PFMEA Documents and Controls in Control Plan Documents. Read access to DFMEA Risks in DFMEA Documents. CANNOT edit DFMEA Risks in DFMEA Documents (cannot modify traces, actions or fields)." "Production"
+		
+		im edittype --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' --permittedGroups="everyone" "DFMEA Risk"
+		
+		im edittype --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' --permittedGroups="everyone" "DFMEA Document"
+		
+		im edittype --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' --permittedGroups="everyone" "PFMEA Risk"
+		
+		im edittype --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' --permittedGroups="everyone" "PFMEA Document"
+		
+		im edittype  --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' --permittedGroups="everyone" "Control"
+		
+		im edittype --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' --permittedGroups="everyone" "Control Plan Document"
+		
+		::pfmea doc
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Document" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Contains"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Document" --editabilityRule='((field[Allow Edits]=true)and((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production")))' "Changes Authorized By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Document" --editabilityRule='((field[Allow Links]=true)and((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production")))' "Spawns"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Document" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Documents"
+		
+		::pfmea risk
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Contains"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Changes Authorized By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Spawns"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Is Related To"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Is Related To'"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Mitigated By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Verified By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Causes"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Actions"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Prevented By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="PFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")or (user is a member of "IE&E")or (user is a member of "Production"))' "Controls"
+		
+		::dfmea doc
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Document" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Contains"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Document" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Documents"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Document" --editabilityRule='((field[Allow Edits]=true)and((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")))' "Changes Authorized By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Document" --editabilityRule='((field[Allow Links]=true)and((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O")))' "Spawns"
+		
+		:: Dfmea risk
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Spawns"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Contains"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Changes Authorized By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Shared By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Is Related To"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Is Related To'"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Mitigated By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Verified By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Controlled By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Causes"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Compromises"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="DFMEA Risk" --editabilityRule='((user is a member of "Administrators")or(user is a member of "VINC")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")or (user is a member of "D&O"))' "Actions"
+		
+		:: control doc
+		im editfield %CONNECTION_INFO% --overrideForType="Control Plan Document" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Contains"
+		
+		
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control Plan Document" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Documents"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control Plan Document" --editabilityRule='((field[Allow Edits]=true)and((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production")))' "Changes Authorized By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control Plan Document" --editabilityRule='((field[Allow Links]=true)and((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production")))' "Spawns"
+		
+		:: control 
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Contains"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Changes Authorized By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Shared By"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Spawns"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Decomposes To"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Is Related to"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Is Related to'"
+		
+		im editfield %CONNECTION_INFO% --overrideForType="Control" --editabilityRule='((user is a member of "Administrators")or (user is a member of "QAM")or (user is a member of "Global Quality Project Manager")or (user is a member of "Quality Engineer")(user is a member of "Production"))' "Prevents"
+		
+		
+ 
+	
+43179
+	im editfield %CONNECTION_INFO%  --picks="Change of Requirement Specification:1:%TEMP_IMAGES%\changeofreq.png,Control Plan:2:%TEMP_IMAGES%\controlplandocument.png,Development Test:3:%TEMP_IMAGES%\Test.png,Drawing Change:4:%TEMP_IMAGES%\Drawing Change.gif,Measurement Tool:5:%TEMP_IMAGES%\Measurement Tool.png,Move to FMEA:6:%TEMP_IMAGES%\MovetoFMEA.gif,No Action:7:%TEMP_IMAGES%\No Action.png,Other:8:%TEMP_IMAGES%\Other.gif,Other Type of Test/Investigation:9:%TEMP_IMAGES%\Other Type of Test.png,PQV Test:10:%TEMP_IMAGES%\Test.png,Process Improvement:11:%TEMP_IMAGES%\Process Improvement.gif,Production Process:12:%TEMP_IMAGES%\ProductionProcess.gif,Redesign:13:%TEMP_IMAGES%\redesign.png,SPRP:14:%TEMP_IMAGES%\SPRP.png,Simulation/Calculation:15:%TEMP_IMAGES%\SimulationCalculation.gif,Standard:16:%TEMP_IMAGES%\Standard.png,User Guide:17:%TEMP_IMAGES%\Userguide.gif" "Action Type"
+	
+	im createfield --name="DFMEAs IN Actions" --description="Created for making rule constraint on Action Type" --type=logical --relevanceRule="(user is a member of \"Administrators\")" --editabilityRule=(false)  
+	
+	im createfield --name="PFMEAs IN Actions" --description="Created for making rule constraint on Action Type" --type=logical --relevanceRule="(user is a member of \"Administrators\")" --editabilityRule=(false)  
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Action" "Is Only DFMEAs IN Actions"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Action" "Is Only PFMEAs IN Actions"
+	
+	im edittype --addfieldRelationship=constraintrule="((field[\"DFMEAs IN Actions\"] = \"true\") and (field[\"PFMEAs IN Actions\"] = \"false\")):Action Type=Change of Requirement Specification,Development Test,Move to FMEA,No Action,PQV Test,Production Process,Redesign,SPRP,Simulation/Calculation,User Guide:errInvalidated=\"The selected Action Type is not valid for an Action with a DFMEA Risk\"" "Action"
+	
+	im edittype --addfieldRelationship=constraintrule="((field[\"PFMEAs IN Actions\"] = \"true\") and (field[\"DFMEAs IN Actions\"] = \"false\")):Action Type=Move to FMEA,No Action,PQV Test,Control Plan,Standard,Other Type of Test/Investigation,Drawing Change,Measurement Tool,Process Improvement,Other:errInvalidated=\"The selected Action Type is not valid for an Action with a PFMEA Risk\"" "Action"
+	
+	im createtrigger --name="Velux:Action-Set Rest Relationship Status" --type=rule --script="Velux/computeReationshipStatus.js" --scriptParams="Field 1=DFMEAs IN Actions;Relationship Field=Action For;Field 2=PFMEAs IN Actions" --rule="((field[\"Type\"] = \"Action\") and (field[\"Action For\"] != field'[\"Action For\"]))" --scriptTiming=pre 
+	
+	im editfield --overrideForType="Action" --editabilityRule='((field["State"] = "Not Started") or (field["State"] = "In Work") or (field["State"] = "Completed") or (field["State"] = "Completed/Rescore") or (field["State"] = "On Hold") or (field["State"] = "Cancelled"))' "Action Type"
+	
+	::update action.xml
+	
+40893
+		im createfield --name="Is Controlled By Exists" --description="Used in chart to find out DFMEA risk is transferred to PFMEA Risk." --type=logical --default=false --computation="isEmpty(RelCount(\"Controlled By\") > 0,false)" --storeToHistoryFrequency=delta --nostaticComputation 
+		
+		im createfield --name="Is Prevented By Exists" --description="Used in chart to find out PFMEA risk is transferred to Control." --type=logical --default=false --computation="isEmpty(RelCount(\"Prevented By\") > 0,false)" --storeToHistoryFrequency=delta --nostaticComputation 
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Risk" "Is Prevented By Exists"
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Risk" "Is Controlled By Exists"
+		
+		im createquery --name="All Velux Risk Manamgment Contents"  --description="This query is created for making the Risk Items Sorted By CTQ chart" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="((subquery[All DFMEA Risks]) or (subquery[All PFMEA Risks]) or (subquery[All Controls]))" --fields="ID,Category,Item/Function,CTQ,Process / Part Name,Failure Mode,Cause,Effect,Trace Status,Document ID,Project"
+		
+		im createquery --name="All CTQ and Potential CTQ DFMEA Risks"  --description="This query is created for making CTQ DFMEA Risk Chart" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="((subquery[All DFMEA Risks])and ((field[CTQ]=Yes)or(field[CTQ]=Potential)))" --copyColumnsFromQuery="All DFMEA Risks"
+		
+		im createquery --name="All CTQ Risks"  --description="This query is created for making the All CTQ Risk Sorted By Risk Profile Chart" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="(((subquery[All DFMEA Risks]) or (subquery[All PFMEA Risks]))  and(field[CTQ] =Yes))" --fields="ID,Category,Item/Function,CTQ,Process / Part Name,Failure Mode,Cause,Effect,Trace Status,Document ID,Project"
+		
+		im createquery --name="All CTQ and Potential CTQ PFMEA Risks"  --description="This query is created for making CTQ PFMEA Risk Chart" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="(( (subquery[All PFMEA Risks]))and ((field[CTQ]=Yes)or(field[CTQ]=Potential)))" --copyColumnsFromQuery="All PFMEA Risks"
+		
+		im createquery --name="All Overdue Actions"  --description="All Overdue Actions for Chart" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="((field[Required By] in the last 1000 days) and (field[Type] = \"Action\") and (field[State] = \"In Work\"))" --fields="ID,Type,Summary,Action Type,Required By,State,Assigned User,Project"
+		
+		im createquery --name="All DFMEA Documents Created By Me"  --description="All DFMEA Documents Created By Me" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --copyColumnsFromQuery="All DFMEA Documents" --queryDefinition="( (subquery[All DFMEA Documents] )and (field[Created By] = me))" --copyColumnsFromQuery="All DFMEA Documents"
+
+		im createquery --name="All PFMEA Documents Created By Me"  --description="All PFMEA Documents Created By Me" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --copyColumnsFromQuery="All PFMEA Documents" --queryDefinition="((subquery[All PFMEA Documents]) and (field[Created By] = me))" --copyColumnsFromQuery="All PFMEA Documents"
+
+		im createquery --name="All Control Plan Documents Created By Me"  --description="All Control Plan Documents Created By Me" --sharedAdmin --shareWith=g=everyone,Administrators:modify  --copyColumnsFromQuery="All Control Plan Documents" --queryDefinition="((subquery[All Control Plan Documents] ) and (field[Created By] = me))" --copyColumnsFromQuery="All Control Plan Documents"
+		
+		:: end of quries
+		
+		im createchart --name="Risk Management Documents" --chartType=Distribution --chartTitle="Documents" --description="All Velux Risk Management Documents" --fieldValues="State=In Work,In Review,Released,Under Change,Archived" --graphStyle=Table --groupingValues="Type=Control Plan Document,PFMEA Document,DFMEA Document"  --isShowZeroFieldCount --isShowZeroGroupingCount --query="All VELUX Risk Documents" --shareWith=g=everyone,Administrators:modify --sharedAdmin --displayColumnTotals --nodisplayDescription --displayRowTotals
+
+		im createchart --name="Risk Management Actions" --chartType=Distribution --chartTitle="Actions" --description="All Velux Risk Management Actions" --fieldValues="State=Not Started,In Work,Completed,On Hold,Cancelled,Completed/Rescore" --graphStyle=Table --isShowZeroFieldCount --isShowZeroGroupingCount --query="All Actions" --shareWith=g=everyone,Administrators:modify --sharedAdmin --swapRowsAndColumns --nodisplayDescription --displayColumnTotals
+		
+		im createchart --name="Risk Manamgment Items" --chartType=Distribution --chartTitle="Content Items" --description="All Velux Risk Management Items" --graphStyle=Table --fieldValues="Type=Control,PFMEA Risk,DFMEA Risk"  --isShowZeroFieldCount --isShowZeroGroupingCount --query="All Velux Risk Manamgment Contents" --shareWith=g=everyone,Administrators:modify --sharedAdmin --swapRowsAndColumns --nodisplayDescription --displayColumnTotals
+		
+
+		im createchart --name="Risks and Controls Sorted By CTQ" --chartType=Distribution --chartTitle="Risks and Controls Sorted By CTQ" --description="All Velux Risk Management Items Sorted By CTQ" --graphStyle=VerticalBar --fieldValues="Type=Control,PFMEA Risk,DFMEA Risk"  --isShowZeroFieldCount --isShowZeroGroupingCount --groupingValues="CTQ=No[],Yes,Potential,No[No]" --query="All Velux Risk Manamgment Contents" --shareWith=g=everyone,Administrators:modify --sharedAdmin --is3D --displayLegend --legendPosition=Right --legendTitle="CTQ:" --noisAutoColors --dataColors='255,0,0;255,153,153;204,204,204'
+		
+
+		im createchart --name="CTQ Risk Sorted By Risk Profile" --chartType=Distribution --chartTitle="CTQ Risk Sorted By Risk Profile" --description="All CTQ DFMEA Risks and PFMEA Risks Sorted By Risk Profile" --graphStyle=VerticalBar --fieldValues="Risk Profile=Low,Medium,High,Very High"  --isShowZeroFieldCount --isShowZeroGroupingCount --groupingValues="Type=PFMEA Risk,DFMEA Risk" --query="All CTQ Risks" --shareWith=g=everyone,Administrators:modify --sharedAdmin --is3D --displayLegend --legendPosition=Right --legendTitle="Type:" --noisAutoColors --dataColors='255,0,0;204,204,204'
+		
+		
+		im createchart --name="DFMEA Risks related to Item/Functions" --chartType="Issue Fields" --chartTitle="DFMEA Risks related to Item/Functions" --description="DFMEA Risks related to Item/Functions" --graphStyle=Table --isShowZeroFieldCount --query="All Item/Functions" --shareWith=g=everyone,Administrators:modify --sharedAdmin --swapRowsAndColumns --computations='isEmpty(aggregate("DFMEAs For Item/Function",sum((IsType("DFMEA Risk"))? 1:0)),0):Related DFMEAs:#,###:none' --computations='isEmpty(aggregate("DFMEAs For Item/Function",sum(((IsType("DFMEA Risk")) and ("Risk Profile"="High" or "Risk Profile"="Very High"))? 1:0)),0):High or Very High DFMEAs:#,###:none' --computations='isEmpty(aggregate("DFMEAs For Item/Function",sum(((IsType("DFMEA Risk")) and CTQ="Yes")? 1:0)),0):CTQ DFMEAs:#,###:none' --issueIdentifier="[{ID}]{Summary} - {Project}" --nodisplayDescription --displayColumnTotals
+			
+		
+		im createchart --name="CTQ Potential CTQ DFMEA Risk" --chartType=Distribution --chartTitle="CTQ Potential CTQ DFMEA Risk" --description="Transferred/Not Transferred to PFMEA" --graphStyle=VerticalBar --fieldValues="Risk Profile=Low,Medium,High,Very High"  --isShowZeroFieldCount --isShowZeroGroupingCount --groupingValues="Is Controlled By Exists=Transferred[true],Not Transferred[false]" --query="All CTQ and Potential CTQ DFMEA Risks" --shareWith=g=everyone,Administrators:modify --sharedAdmin --is3D --displayLegend --legendPosition=Right --legendTitle="Status:" --noisAutoColors --dataColors='255,0,0;204,204,204'
+		
+		im createchart --name="CTQ Potential CTQ PFMEA Risk" --chartType=Distribution --chartTitle="CTQ Potential CTQ PFMEA Risk" --description="Transferred/Not Transferred to Control" --graphStyle=VerticalBar --fieldValues="Risk Profile=Low,Medium,High,Very High"  --isShowZeroFieldCount --isShowZeroGroupingCount --groupingValues="Is Prevented By Exists=Transferred[true],Not Transferred[false]" --query="All CTQ and Potential CTQ PFMEA Risks" --shareWith=g=everyone,Administrators:modify --sharedAdmin --is3D --displayLegend --legendPosition=Right --legendTitle="Status:" --noisAutoColors --dataColors='255,0,0;204,204,204'
+		
+		im createchart --name="Actions Maturity" --chartType=Distribution --chartTitle="Actions Maturity" --graphStyle=Pie --fieldValues="State=Not Started,In Work,Completed,On Hold,Cancelled,Completed/Rescore"  --isShowZeroFieldCount --isShowZeroGroupingCount  --query="All Actions" --shareWith=g=everyone,Administrators:modify --sharedAdmin --is3D --noisAutoColors --dataColors='255,0,0;255,153,153;204,204,204;0,0,0;102,102,102;153,0,51' --description="Actions sorted By State" --displayDescription
+		
+		im createchart --name="Overdue Actions" --chartType=Distribution --chartTitle="Overdue Actions" --graphStyle=Table --fieldValues="Action Type=Change of Requirement Specification,Control Plan,Development Test,Drawing Change,Measurement Tool,Move to FMEA,No Action,Other,Other Type of Test/Investigation,PQV Test,Process Improvement,Production Process,Redesign,SPRP,Simulation/Calculation,Standard,User Guide"  --isShowZeroFieldCount --isShowZeroGroupingCount  --query="All Overdue Actions" --shareWith=g=everyone,Administrators:modify --sharedAdmin --nois3D --swapRowsAndColumns --description="All \"In Work\" Actions which exceed Required By Date sorted by date" --displayColumnTotals --displayDescription
+	
+			
+		im createreport --name="Top 5 DFMEA Risks" --query="All DFMEA Risks" --recipeParam="ReportType:Top_5_DFMEA_Risks" --recipeParam="Dynamic:true" --sharedAdmin --shareWith=g=everyone,Administrators:modify 
+		
+		im createreport --name="CTQ & Potential CTQ DFMEA Risks" --query="All DFMEA Risks" --recipeParam="ReportType:CTQ_Potential_CTQ_DFMEA_Risks" --recipeParam="Dynamic:true" --sharedAdmin --shareWith=g=everyone,Administrators:modify  
+		
+		im createreport --name="VELUX - Compare FMEA Scoring" --query="Item Based Report Selection" --recipeParam="ReportType:VELUX_Compare_FMEA_Scoring" --recipeParam="/root/reporttitle/ParamValue:VELUX Compare FMEA Scoring"  --recipeParam="Dynamic:true" --sharedAdmin --shareWith=g=everyone,Administrators:modify 
+		
+		
+		im editdashboard --layoutFile="VeluxRiskDashboard.xml" "VELUX Risk Dashboard"
+	
+		::update IPT DFMEA Risk(dfmea.xml) , PFMEA Risk(pfmea.xml)
+44648	
+		jar done
+40890
+	 im editfield --defaultColumns="ID,Category,CTQ,Failure Mode,Cause,Effect,RPN,Risk Profile,Document ID,Project" "DFMEAs For Item/Function"
+	 
+	 im edittype --addfieldRelationship=rule="((field'[State] = Active) and (field[Project] = field'[Project])):Item/Function:description=Constrain the item/Functions such that only active and those created for the same project are available." "DFMEA Risk"
+	 
+
+40904
+	
+	 im edittype --showWorkflow --copyFields="Item/Function,Project" --stateTransitions="Unspecified:Active:everyone;Active:Closed:everyone;Closed:Active:everyone;Closed:Closed:everyone;Active:Active:everyone" "DFMEA Risk"
+	 
+	 im edittype --showWorkflow --copyFields="Project" --stateTransitions="Unspecified:Active:everyone;Active:Closed:everyone;Closed:Active:everyone;Closed:Closed:everyone;Active:Active:everyone" "PFMEA Risk"
+		
+	im createquery --name="All Active DFMEA Risks" --queryDefinition="((subquery[All DFMEA Risks]) and (field[State]=Active))" --sharedAdmin --shareWith="g=everyone,Administrators:modify" --image="%IMAGES_PATH%/DFMEA Risk.gif" --description="A query used to find DFMEA Risk items in Active state. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --fields="ID,Category,State,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"
+	
+	im createquery --name="All Closed DFMEA Risks" --queryDefinition="((subquery[All DFMEA Risks]) and (field[State]=Closed))" --sharedAdmin --shareWith="g=everyone,Administrators:modify" --image="%IMAGES_PATH%/DFMEA Risk.gif" --description="A query used to find DFMEA Risk items in Closed state. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --fields="ID,Category,State,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"
+	
+	im createquery --name="All Active PFMEA Risks" --queryDefinition="((subquery[All PFMEA Risks]) and (field[State]=Active))" --sharedAdmin --shareWith="g=everyone,Administrators:modify" --image="%IMAGES_PATH%/PFMEA Risk.gif" --description="A query used to find PFMEA Risk items in Active state. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --fields="ID,Category,State,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"
+	
+	im createquery --name="All Closed PFMEA Risks" --queryDefinition="((subquery[All PFMEA Risks]) and (field[State]=Closed))" --sharedAdmin --shareWith="g=everyone,Administrators:modify" --image="%IMAGES_PATH%/PFMEA Risk.gif" --description="A query used to find PFMEA Risk items in Closed state. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --fields="ID,Category,State,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"
+	
+	im createfield --name="Active Risks Count" --description="The number of Active risks belonging to the document. This metric is computed once a day." --type=Integer --computation='IsEmpty(aggregate("Contains",sum((IsMeaningful() AND IsState("Active") )? 1 : 0)), 0)' --storeToHistoryFrequency=delta --staticComputation --allowComputationUpdatesOnVersion --displayPattern="#,###"
+	
+	im createfield --name="Closed Risks Count" --description="The number of Closed risks belonging to the document. This metric is computed once a day." --type=Integer --computation='IsEmpty(aggregate("Contains",sum((IsMeaningful() AND IsState("Closed") )? 1 : 0)), 0)' --storeToHistoryFrequency=delta --staticComputation --allowComputationUpdatesOnVersion --displayPattern="#,###"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Active Risks Count"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Active Risks Count"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Closed Risks Count"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Closed Risks Count"
+	
+	:: update IPT dfmeadocument.xml,pfmeadocument.xml
+	
+	im createfield --name="Open Actions Count" --description="The number of actions in the open phase belonging to the risk. This metric is computed once a day." --type=Integer --computation='IsEmpty(aggregate("Actions",sum("Action Phase" == "Open" ? 1 : 0)), 0) ' --storeToHistoryFrequency=delta --staticComputation --allowComputationUpdatesOnVersion --displayPattern="#,###"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Risk" "Open Actions Count"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Risk" "Open Actions Count"
+	
+	::update IPT dfmea.xml,pfmea.xml
+	
+	im editquery --fields="ID,Type,Summary,State,Project,Active Risks Count,Closed Risks Count" "All PFMEA Documents"
+	im editquery --fields="ID,Type,Summary,State,Project,Active Risks Count,Closed Risks Count" "All DFMEA Documents"
+	
+	im editquery --fields="ID,Category,State,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All DFMEA Risks"
+	im editquery --fields="ID,Category,State,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project" "All PFMEA Risks"
+	
+	im edittype --copyFields="Summary,Project,Assigned User,Stakeholders,Required By,Action Type,Action Taken,Recommended Action" "Action"
+
+40897
+	
+	im editfield --confirmMultiValued --multiValued "Action For"
+	
+42482
+	
+	im createreport --name="VELUX - Compare FMEA Scoring" --query="Item Based Report Selection" --recipeParam="ReportType:VELUX_Compare_FMEA_Scoring" --recipeParam="/root/reporttitle/ParamValue: VELUX - Compare FMEA Scoring" --recipeParam="/root/DFMEA_Exclude_Category/ParamValue:Heading~Comment" --recipeParam="/root/PFMEA_Exclude_Category/ParamValue:Heading~Comment~Success Criteria~Process Step~Item/Function" --recipeParam="Dynamic:true" --sharedAdmin --shareWith=g=everyone,Administrators:modify 
+	
+43872
+	
+	im createfield --name="Last Released Date" --description="When the document was last released." --type=date --editabilityRule=(false)
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Last Released Date"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Last Released Date"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Last Released Date"
+	
+	im createtrigger --name="Velux - Populate Last Released Date" --type=rule --description="To Populate Last Released Date when the document goes to Released  state" --assign="Last Released Date=today" --rule="(((field[\"Type\"] = \"Control Plan Document\") or (field[\"Type\"] = \"DFMEA Document\") or (field[\"Type\"] = \"PFMEA Document\") )and (field[\"State\"] != field'[\"State\"]) and (field'[\"State\"] = \"Released\"))" --scriptTiming=pre
+	
+	im createfield --name="Control Plan Document Number" --description="The number of the Control Plan Document" --type=shorttext --maxLength=32 --textIndex
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Control Plan Document Number"
+	
+	:: update pfmeadocument.xml,dfmeadocument.xml,controlplandocument.xml
+
+45849,42851,42613	
+	integrity publishviewset --canImport=group:everyone --canModify=group:Administrators --customizable --description="VELUX Viewset for Risk Management." --nomandatory --name="VELUX Risk Viewset" --confirmoverwriteExisting  "gke.ext.admin_10.45.140.95_51693_6.vs"
+43806
+
+	::java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% removeVisibleField "Control Plan Document" "Process Step"
+::update controlplan.xml
+::update removeVisibleField
+
+40253	 
+	
+	im edittype --stateTransitions="Unspecified:In Work:everyone,Administrators;In Work:In Review:everyone,Administrators;In Review:In Work:everyone,Administrators;In Review:Released:Administrators;In Review:Under Change:Administrators;Released:In Work:everyone,Administrators;Released:Archived:everyone,Administrators;Released:Under Change:Administrators;Under Change:Released:Administrators;Under Change:In Review:Administrators;Released:Released:everyone;In Work:In Work:everyone;In Review:In Review:everyone;Under Change:Under Change:everyone;Archived:Archived:everyone" --mandatoryFields="In Work:Document Short Title;In Review:Document Short Title;Under Change:Document Short Title;Released:Document Short Title;Archived:Document Short Title;" "DFMEA Document"
+	
+	im edittype --stateTransitions="Unspecified:In Work:everyone,Administrators;In Work:In Review:everyone,Administrators;In Review:In Work:everyone,Administrators;In Review:Released:Administrators;In Review:Under Change:Administrators;Released:In Work:everyone,Administrators;Released:Archived:everyone,Administrators;Released:Under Change:Administrators;Under Change:Released:Administrators;Under Change:In Review:Administrators;Released:Released:everyone;In Work:In Work:everyone;In Review:In Review:everyone;Under Change:Under Change:everyone;Archived:Archived:everyone" --mandatoryFields="In Work:Document Short Title;In Review:Document Short Title,Area,PCo;Under Change:Document Short Title;Released:Document Short Title;Archived:Document Short Title;" "PFMEA Document"
+	
+	im edittype --stateTransitions="Unspecified:In Work:everyone,Administrators;In Work:In Review:everyone,Administrators;In Review:In Work:everyone,Administrators;In Review:Released:Administrators;In Review:Under Change:Administrators;Released:In Work:everyone,Administrators;Released:Archived:everyone,Administrators;Released:Under Change:Administrators;Under Change:Released:Administrators;Under Change:In Review:Administrators;Released:Released:everyone;In Work:In Work:everyone;In Review:In Review:everyone;Under Change:Under Change:everyone;Archived:Archived:everyone" --mandatoryFields="In Work:Document Short Title;In Review:Document Short Title,Area,PCo;Under Change:Document Short Title;Released:Document Short Title;Archived:Document Short Title;" "Control Plan Document"
+	
+
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Do You Approve?"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Approvers Required"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Most Recently Approved Date"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Approved By"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "DFMEA Document" "Approval Matrix"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Do You Approve?"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Approvers Required"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Most Recently Approved Date"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Approved By"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Approval Matrix"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Do You Approve?"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Approvers Required"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Most Recently Approved Date"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Approved By"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Approval Matrix"
+	
+	
+	
+	im editfield --overrideForType="DFMEA Document" --editabilityRule="(field[State] = \"In Review\")" --relevanceRule="(field[State]=\"In Review\")" "Approvers Required"
+	
+	im editfield  --overrideForType="DFMEA Document" --editabilityRule="(field[\"Approvers Required\"] = me)" --relevanceRule="(field[State]=\"In Review\")" "Do You Approve?"
+	
+	im editfield --overrideForType="PFMEA Document" --editabilityRule="(field[State] = \"In Review\")" --relevanceRule="(field[State]=\"In Review\")" "Approvers Required"
+	
+	im editfield  --overrideForType="PFMEA Document" --editabilityRule="(field[\"Approvers Required\"] = me)" --relevanceRule="(field[State]=\"In Review\")" "Do You Approve?"
+
+	im editfield --overrideForType="Control Plan Document" --editabilityRule="(field[State] = \"In Review\")" --relevanceRule="(field[State]=\"In Review\")" "Approvers Required"
+	
+	im editfield  --overrideForType="Control Plan Document" --editabilityRule="(field[\"Approvers Required\"] = me)" --relevanceRule="(field[State]=\"In Review\")" "Do You Approve?"
+	
+	
+	im edittrigger --rule="(((field[Type] = \"Design Specification Document\") or (field[Type] = \"Requirement Specification Document\") or (field[Type] = \"Test Protocol Document\") or (field[Type] = \"Legal Requirement Document\") or (field[Type] = \"Project Scope Document\") or (field[Type] = \"Product Programme Architecture Document\") or (field[Type] = \"PAV Requirement Document\") or (field[Type] = \"PFMEA Document\") or (field[Type] = \"DFMEA Document\") or (field[Type] = \"Control Plan Document\")) and (field[State] = \"In Review\") and (field'[State] = \"Released\"))" "Velux - Create Label on State Change"
+	
+	im edittrigger --rule="(((field[Type] = \"Requirement Specification Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"Design Specification Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"Legal Requirement Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"PAV Requirement Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"Project Scope Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"Product Programme Architecture Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"Test Protocol Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"DFMEA Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"PFMEA Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))) or ((field[Type] = \"Control Plan Document\") and (field[State] = \"In Review\") and ((field'[\"Do You Approve?\"] = \"Yes\") or (field'[\"Do You Approve?\"] = \"No\"))))" "MKS.ALM: eSignatures"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "PFMEA Risk" "MKS.RQ.Editability.Document.1" "Project,Contains,References,Contained By,Text,Category,Text Attachments,Changes Authorized By,Mitigated By,Failure Mode,Cause,Effect,Priority,Controls (Prevention),Controls (Detection),Additional Comments,State,Prevented By,Controls,Verified By,Actions,Severity,Occurrence,Detection,Residual Severity,Residual Occurrence,Residual Detection,Attachments,CTQ Drawing Number,CTQ Number" "(Configurable) Fields that are editable only when the field referenced by property MKS.RQ.EditabilityField.Document.1 has value \"true\". Do not specify the reverse couplet relationships (Referenced By) in this list - it will be ignored."
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "DFMEA Risk" "MKS.RQ.Editability.Document.1" "Project,Contains,References,Contained By,Text,Category,Text Attachments,Changes Authorized By,Mitigated By,CTQ,Item/Function,Failure Mode,Cause,Effect,Controls (Prevention),Controls (Detection),Additional Comments,State,Severity,Occurrence,Detection,Residual Severity,Residual Occurrence,Residual Detection,Attachments,Controlled By,Verified By,Compromises,Actions,Priority,CTQ Drawing Number,CTQ Number" "(Configurable) Fields that are editable only when the field referenced by property MKS.RQ.EditabilityField.Document.1 has value \"true\". Do not specify the reverse couplet relationships (Referenced By) in this list - it will be ignored."
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% editProperty "Control" "MKS.RQ.Editability.Document.1" "Project,Contains,References,Contained By,Validated By,Text,Category,Text Attachments,Changes Authorized By,Process / Part Number,Process / Part Name,Drawing number,Standard Number,Key Characteristic Name,Product / Process Specification,Type of Requirement,Defect Class,Additional Comments,Process Step,CTQ Drawing Number,CTQ Number,CTQ,Evaluation Technique / Measurement,Instruction Number,Result Recorded on Media,Result Recorded As,Reported As,Sample Size (Automatic),Frequency Level (Automatic),According Sample Plan,Sample Size (Operator),Frequency Level (Operator),When Change of Product Size/Type,When Change of Material/Component,Sample Size (Inspector),Frequency Level (Inspector),Immediate Action (Found By Operator),NCR Process Followed,Prevents,Attachments,State,Priority,Name"	"(Configurable) Fields that are editable only when the field referenced by property MKS.RQ.EditabilityField.Document.1 has value \"true\". Do not specify the reverse couplet relationships (Referenced By) in this list - it will be ignored."
+		
+	im editfield --computation="(State != \"In Review\" and State != \"Published\" and State != \"Delivered\" and State != \"Retired\" and  State != \"Released\" and  State != \"Archived\") or (State == Unspecified) or \"Valid Change Request\"" "Allow Edits"
+
+	
+	::controlplandocument.xml,dfmeadocument.xml,pfmeadocument.xml
+
+
+43864	
+	im editfield --overrideForType=Control --editabilityRule="((field[\"Reference Mode\"] != \"Share\") and (field[\"Prevents\"] = \"\"))" "Drawing number"
+
+	im editfield --overrideForType=Control --editabilityRule="((field[\"Reference Mode\"] != \"Share\") and (field[\"Prevents\"] = \"\"))" "Key Characteristic Name"
+
+	im edittrigger --scriptParams="Fields to copy=CTQ:CTQ,CTQ Number:CTQ Number~Key Characteristic Name,CTQ Drawing Number:CTQ Drawing Number~Drawing number;Relationship to source item=Prevents" "VELUX: Control - propagate CTQ fields"
+	
+	im createtrigger --type=rule --name="VELUX: PFMEA Risk - Update CTQ fields downstream" --rule="((field[\"Type\"] = \"PFMEA Risk\") and (field'[Prevented By] != \"\")and ((field'[\"CTQ Drawing Number\"] != field[\"CTQ Drawing Number\"]) or (field'[\"CTQ Number\"] != field[\"CTQ Number\"])))"  --scriptTiming=pre --scriptParams="Fields to copy=CTQ Number:Key Characteristic Name,CTQ Drawing Number:Drawing number;Relationship to target item=Prevented By" --script="Velux/updateDownMultiValuedRelatedFields.js"
+
+44973
+	
+	 im createquery --name="All DFMEA & PFMEA Risks"  --description="A query used to find DFMEA & PFMEA Risk items. This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="( (subquery[All PFMEA Risks]) or (subquery[All DFMEA Risks]))"  --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk profile,Trace Status,Document ID,Project"
+	 
+	 im createquery --name="All DFMEA & PFMEA Risks with Completed/Rescore Action(s)"  --description="A query used to find DFMEA & PFMEA Risk items with Completed/Rescore Action(s). This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="( ((subquery[All PFMEA Risks]) or (subquery[All DFMEA Risks])) and(relationship[State] forwards using [Actions]=Completed/Rescore))"  --fields="ID,Category,Item/Function,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk profile,Trace Status,Document ID,Project"
+	 
+	 im createquery --name="All DFMEA  with Completed/Rescore Action(s)"  --description="A query used to find DFMEA Risk items with Completed/Rescore Action(s). This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="( (subquery[All DFMEA Risks]) and(relationship[State] forwards using [Actions]=Completed/Rescore))" --copyColumnsFromQuery="All DFMEA Risks" --image="DFMEA Risk.gif"
+	 
+	 im createquery --name="All PFMEA  with Completed/Rescore Action(s)"  --description="A query used to find PFMEA Risk items with Completed/Rescore Action(s). This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify  --queryDefinition="( (subquery[All PFMEA Risks]) and(relationship[State] forwards using [Actions]=Completed/Rescore))" --copyColumnsFromQuery="All PFMEA Risks" --image="PFMEA Risk.gif"
+	 
+40250
+		
+	im createfield --name="Machine ID" --type=shorttext --maxLength=20 --textIndex
+	im createfield --name="Line ID" --type=shorttext --maxLength=20 --textIndex
+	im createfield --name="PCo" --type=pick --picks="JTJ Sonneborn Industrie GmbH:1,VELTERM A/S:2,VKR France:3,Østbirk Bygningsindustri:4,Namyslow Manufacturing:5,LKR-Hungary:6,Partizánske Building Component:7,Skjern - DSP production:8,Skjern - Shutter production:9,Skjern - Installation production:10,Skjern - Electrics production:11,BKR - DSP production:12,BKR - Electrics production:13,KH - Shutter:14,SK - Shutter:15,SK - Installation:16,VELSOL - DSP Production:17,NB-PL(W):18,NM-PL(W):19,NB-PL(H) - Plastic:20"
+	
+	im createfield --name="Area" --type=pick --picks="Accessories\, DSP:1,Accessories\, Shutter:2,Accessories\, Electric:3,Installation:4,Panes:5,PU Process:6,PU Assembly:7,Wood Process:8,Wood Assembly:9,Hardware:10,Flat Roof:11,Flat Roof\, Sun Tunnel:12,Flashing:13,Cladding:14"
+	
+	im createfield --name="PFMEAs for Item/Function" --Description="A list of all PFMEAs associated with this Item/Function" --type=qbr --defaultColumns="ID,Category,CTQ,Failure Mode,Cause,Effect,RPN,Risk Profile,Document ID,Project" --query="All PFMEA Risks" --correlation="ID:Item/Function"
+
+	im createfield --name="Controls for Item/Function" --Description="A list of all Controls associated with this Item/Function" --type=qbr --defaultColumns="ID,Category,CTQ,Process / Part Number,Process / Part Name,Document ID,Project" --query="All Controls" --correlation="ID:Item/Function"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Risk" "Machine ID"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control" "Line ID"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "PCo"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "PCo"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Document" "Area"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control Plan Document" "Area"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Risk" "Item/Function"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control" "Item/Function"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Item/Function" "PFMEAs for Item/Function"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Item/Function" "Controls for Item/Function"
+
+
+
+	im editquery --fields="ID,Type,Summary,PCo,Area,State,Project"  "All VELUX Risk Documents"
+	im editquery --fields="ID,Type,Summary,PCo,Area,State,Project" "All PFMEA Documents"
+	im editquery --fields="ID,Type,Summary,PCo,Area,State,Project" "All Control Plan Documents"
+
+	im editquery --fields="ID,Category,Item/Function,Process Step,Machine ID,State,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"   "All PFMEA Risks"
+
+	im editquery --fields="ID,Category,Item/Function,Process Step,Machine ID,State,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"  "All PFMEA Risks without Completed Action Where RPN > 100 or Severity > 8"
+
+	im editquery --fields="ID,Category,Item/Function,Process Step,Machine ID,State,CTQ,Failure Mode,Cause,Effect,Severity,Occurrence,Detection,RPN,Risk Profile,Trace Status,Document ID,Project"  "All CTQ PFMEA Risks"
+
+	im editquery --fields="ID,Category,Item/Function,Process Step,Line ID,CTQ,Process / Part Number,Process / Part Name,Drawing number,Standard Number,Key Characteristic Name,Product / Process Specification,Trace Status,Document ID,Project"  "All Controls"
+
+	im editquery --fields="ID,Category,Item/Function,Process Step,Line ID,CTQ,Process / Part Number,Process / Part Name,Drawing number,Standard Number,Key Characteristic Name,Product / Process Specification,Trace Status,Document ID,Project"  "All CTQ Controls"
+
+	::TODO
+	::systemmodule.xml,controlplandocument.xml,pfmeadocument.xml,pfmea.xml,controlplan.xml,processstep.xml
+	integrity publishviewset --canImport=group:everyone --canModify=group:Administrators --customizable --description="VELUX Viewset for Risk Management." --nomandatory --name="VELUX Risk Viewset" --confirmoverwriteExisting  "gke.ext.admin_10.45.140.95_51693_6.vs"
+
+46014
+		im createfield --name="CTP" --description="Logical field defining whether the item is CTP (critical-to-process)." --type=logical --displayTrueAs="Yes" --displayFalseAs="No" --default=false --computation="isEmpty(\"Category\"==\"Process Control\",false)" --nostaticComputation --storeToHistoryFrequency=never
+		
+		im editfield --editabilityRule=(false) "CTP"
+		
+		java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control" "CTP"
+		
+		im createquery --name="All CTP Controls" --image="D:\Risk Management\Velux images\Control.PNG" --description="A query used to find Controls items that are marked as CTP (critical-to-process). This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify --fields="ID,Category,Item/Function,Process Step,Line ID,CTQ,CTP,Process / Part Number,Process / Part Name,Drawing number,Standard Number,Key Characteristic Name,Product / Process Specification,Trace Status,Document ID,Project" --queryDefinition="((field[CTP] =\"Yes\") and (subquery[All Controls]))" --hostname=dnkgevelplmf201.velux.org --port=7001
+
+45004
+	
+	im createtype --name="Process Step"  --image="Process Step.gif" --documentClass=none --visibleFields="State:everyone;Summary:everyone;Project:everyone;Description:everyone;Attachments:everyone;Area:everyone" --stateTransitions="Unspecified:Active:Administrators,QAM,Quality Engineer;Active:Inactive:everyone;Active:Active:everyone;Inactive:Inactive:everyone" --mandatoryFields="Active:Project,Summary" --showHistory --showWorkflow --permittedAdministrators=g=Administrators --permittedGroups=everyone --editabilityRule="((user is a member of \"Administrators\")or (user is a member of \"QAM\")or (user is a member of \"Quality Engineer\"))"
+	
+	integrity putdbfile --input="D:\Risk Management\IPTs\processstep.xml" "data/im/issue/templates/processstep.xml"
+	im edittype --editPresentation=processstep --viewPresentation=processstep --printPresentation=processstep "Process Step"
+
+	im createquery --name="All Process Steps" --image="Process Step.gif" --description="A query used to find Process Step items . This query should only be used as a subquery, invoking this query without a project filter or in a project with a large volume of risks may timeout." --sharedAdmin --shareWith=g=everyone,Administrators:modify --fields="ID,Type,Summary,State,Project" --queryDefinition="(field[Type] = \"Process Step\")"
+	
+	im editfield --name="Process Step-Deprecated" --displayName="Process Step-Deprecated"
+	
+	im createfield --name="Process Step" --Description="Module that the FMEA will analyse" --type=ibpl --backingIBPLTextFormat="{Summary}" --backingType="Process Step" --displayAsLink
+
+	im createfield --name="PFMEAs for Process Step" --Description="A list of all PFMEAs associated with this Process Step" --type=qbr --defaultColumns="ID,Category,Process Step,Machine ID,CTQ,Failure Mode,Cause,Effect,RPN,Risk Profile,Document ID,Project" --query="All PFMEA Risks" --correlation="ID:Process Step"
+
+	im createfield --name="Controls for Process Step" --Description="A list of all Controls associated with this Process Step" --type=qbr --defaultColumns="ID,Category,Process Step,Line ID,CTQ,Process / Part Number,Process / Part Name,Document ID,Project" --query="All Controls" --correlation="ID:Process Step"
+	
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Process Step" "PFMEAs for Process Step"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Process Step" "Controls for Process Step"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Risk" "Process Step"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control" "Process Step"
+	 
+
+	im createproject --name="Process Steps"  --description="Process Steps Master Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone 
+	im createproject --name="Accessories DSP" --parent="/Process Steps"  --description="Process Steps Master Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Accessories Shutter" --parent="/Process Steps"  --description="Process Steps Master Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Accessories Electric" --parent="/Process Steps"  --description="Process Steps Master Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone 
+	im createproject --name="Installation" --parent="/Process Steps" --description="Process Steps Master Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Panes" --parent="/Process Steps" --description="Process Steps Master Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="PU Process" --parent="/Process Steps"  --description="Process Steps PU Process Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="PU Assembly" --parent="/Process Steps"  --description="Process Steps PU Assembly Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Wood Process" --parent="/Process Steps"  --description="Process Steps Wood Process Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Wood Assembly" --parent="/Process Steps"  --description="Process Steps Wood Assembly Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Hardware" --parent="/Process Steps"  --description="Process Steps Hardware Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Flat Roof" --parent="/Process Steps" --description="Process Steps Flat Roof Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Flat Roof Sun Tunnel" --parent="/Process Steps"  --description="Process Steps Flat Roof Sun Tunnel Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Flashing" --parent="/Process Steps"  --description="Process Steps Flashing Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+	im createproject --name="Cladding" --parent="/Process Steps" --description="Process Steps Cladding Library" --permittedAdministrators=g=Administrators --permittedGroups=everyone
+
+	im createissue --type=Library  --field="Summary=Process Steps" --field="Classification=Library"  --field="Project=/Process Steps"
+	im createissue --type=Library  --field="Summary=Accessories DSP" --field="Classification=Library"  --field="Project=/Process Steps/Accessories DSP"
+	im createissue --type=Library  --field="Summary=Accessories Shutter" --field="Classification=Library"  --field="Project=/Process Steps/Accessories Shutter"
+	im createissue --type=Library  --field="Summary=Accessories Electric" --field="Classification=Library"  --field="Project=/Process Steps/Accessories Electric"
+	im createissue --type=Library  --field="Summary=Installation" --field="Classification=Library"  --field="Project=/Process Steps/Installation"
+	im createissue --type=Library  --field="Summary=Panes" --field="Classification=Library"  --field="Project=/Process Steps/Panes"
+	im createissue --type=Library  --field="Summary=PU Process" --field="Classification=Library"  --field="Project=/Process Steps/PU Process"
+	im createissue --type=Library  --field="Summary=PU Assembly" --field="Classification=Library"  --field="Project=/Process Steps/PU Assembly"
+	im createissue --type=Library  --field="Summary=Wood Process" --field="Classification=Library"  --field="Project=/Process Steps/Wood Process"
+	im createissue --type=Library  --field="Summary=Wood Assembly" --field="Classification=Library"  --field="Project=/Process Steps/Wood Assembly"
+	im createissue --type=Library  --field="Summary=Hardware" --field="Classification=Library"  --field="Project=/Process Steps/Hardware"
+	im createissue --type=Library  --field="Summary=Flat Roof" --field="Classification=Library"  --field="Project=/Process Steps/Flat Roof"
+	im createissue --type=Library  --field="Summary=Flat Roof Sun Tunnel" --field="Classification=Library"  --field="Project=/Process Steps/Flat Roof Sun Tunnel"
+	im createissue --type=Library  --field="Summary=Flashing" --field="Classification=Library"  --field="Project=/Process Steps/Flashing"
+	im createissue --type=Library  --field="Summary=Cladding" --field="Classification=Library"  --field="Project=/Process Steps/Cladding"
+	
+	im editfield --overrideForType="Process Step" --editabilityRule=(false) --hostname=dnkgevelplmf201.velux.org --port=7001 "Area"
+	
+	im createtrigger --name="Velux - update Area-Accessories, DSP" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Accessories, DSP" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Accessories DSP\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Accessories, Shutter" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Accessories, Shutter" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Accessories Shutter\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Accessories, Electric" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Accessories, Electric" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Accessories Electric\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Installation" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Installation" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Installation\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Panes" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Panes" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Panes\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-PU Process" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=PU Process" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/PU Process\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-PU Assembly" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=PU Assembly" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/PU Assembly\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Wood Process" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Wood Process" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Wood Process\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Wood Assembly" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Wood Assembly" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Wood Assembly\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Hardware" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Hardware" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Hardware\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Flashing" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Flashing" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Flashing\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Cladding" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Cladding" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Cladding\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Flat Roof, Sun Tunnel" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Flat Roof, Sun Tunnel" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Flat Roof Sun Tunnel\"))" --scriptTiming=pre
+	
+	im createtrigger --name="Velux - update Area-Flat Roof" --type=rule --description="To update  the Area field based on the project selected" --assign="Area=Flat Roof" --rule="((field[\"Type\"] = \"Process Step\") and (field'[\"Project\"] =\"/Process Steps/Flat Roof\"))" --scriptTiming=pre --hostname=dnkgevelplmf201.velux.org --port=7001
+	
+	::TODO
+		
+	::controlplan.xml,pfmea.xml.processstep.xml
+	:: add area from document as fva to pfmea risk and control
+	::Ask Paul for IPT image
+	:: no item/function in defalut column context
+	im createfield --name="Content Area"  --type=shorttext --description="to populate the Area from a document to content" --editabilityRule=(false) --computation="getFieldValue(\"Document ID\",Area)==1?Text(\"Accessories, DSP\"):Text(\"UnSpecified\")" --staticComputation --storeToHistoryFrequency=delta --hostname=dnkgevelplmf201.velux.org --port=7001 
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "PFMEA Risk" "Content Area"
+	java -jar %LIBRARIES_PATH%/CLIUtils.jar %UTIL_CONNECTION_INFO% addVisibleField "Control" "Content Area"
+	
+	 im edittype --addfieldRelationship=rule="(field'[Area] =field[Area]):Process Step:description=Constrain the Process Step to match Area from both the objects." "PFMEA Risk"
+	 
+	 im edittype --addfieldRelationship=rule="(field'[Area] =field[Area]):Process Step:description=Constrain the Process Step to match Area from both the objects." "Control"
+	
+	
+
+
+
+	 
+
+

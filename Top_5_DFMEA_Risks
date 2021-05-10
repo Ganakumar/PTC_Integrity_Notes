@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Top 5 DFMEA Risks</title>
+	<link rel="stylesheet" type="text/css" href="<%hosturl%>Velux/reports/plugins/1.10.24-jquery.dataTables.min.css"/>
+	
+	<script type="text/javascript" src="<%hosturl%>Velux/reports/plugins/jquery.min.js"></script>
+
+	<script type="text/javascript" src="<%hosturl%>Velux/reports/plugins/1.10.24-jquery.dataTables.min.js"></script>
+	
+
+
+<style>
+
+table, td, th {
+  border: 1px solid black;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+</style>
+</head>
+
+<body>
+
+    <br><br>
+	
+	   <div class="ml-5 col-md-12 col-lg-11">
+	   
+	    <div>
+			<h3>Top 5 DFMEA Risks</h3>
+			<br>
+		    <table  id ="tableOne"><!-- Document Table1  -->
+                <thead >
+			        <tr style="background-color:salmon;color:black;">
+				       <th>ID</th>
+					   <th>CTQ</th>
+					   <th>Severity</th>
+					   <th>Occurence</th>
+					  <th>Detection</th>
+					  <th>RPN</th>
+			        </tr>
+			    </thead>
+				<tbody id="tBodyOne">	
+					
+				</tbody>
+			</table>
+		</div>
+		
+
+	</div>
+	<script>
+	var count = 0;
+	</script>
+	<%begindetail%>
+	<script>
+	 $('#tBodyOne').append($('<tr id="<%ID%>">').append('<td><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%ID%>" target="_blank"><%ID%></a></td>').append('<td><%CTQ%></td>').append('<td><%Severity%></td>').append('<td><%Occurrence%></td>').append('<td><%Detection%></td>').append('<td><%RPN%></td>'));
+	</script>
+	<%enddetail%>
+    <script>
+	var arrRemovables = [];
+        $(document).ready(function(){
+		var table = document.getElementById("tableOne");
+		$("#tableOne").DataTable({
+			 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+			 "autoWidth": false,
+			 "order":[[5,"desc"]],
+			 "paging": false,
+			 "ordering": true,
+			 "info": false,
+                dom: 'Brtip'    		
+            });
+			$('#tableOne > tbody > tr').each(function(index,tr){
+					index ++;
+					if(index >5){
+					var idRemove = table.rows[index].id;
+					arrRemovables.push(idRemove);
+					
+				    }
+				}
+			);
+			var objDatTable = $("#tableOne").DataTable();
+			arrRemovables.forEach((eachId)=>{
+			objDatTable.row($('#'+eachId)).remove();
+			document.getElementById(eachId).remove();
+			}
+			);
+        });
+    </script>
+</body>
+
+</html>

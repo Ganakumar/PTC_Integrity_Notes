@@ -1,0 +1,272 @@
+<!-- -->
+<%version 1%>
+<%description
+    <b>Data: </b>LLR Document Report<br>
+    <b>Notes: </b>This report displays LLR Document details.<br>
+%>
+<%param 
+    name="reporttitle"
+    type="String" 
+    prompt="Report Title" 
+    value="LLR Document Report" 
+    description="Descriptive title for your report."
+%>
+<%param
+    name="reportfooter" 
+    type="MultiString" 
+    prompt="Report Footer" 
+    value="" 
+    description="Text appearing at the bottom of the report page."
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>&reporttitle</title>
+    <link rel="shortcut icon" class="rounded-circle" href="<%hosturl%>Custom/Images/TerumoBCT.png" />
+	<link rel="stylesheet" href="<%hosturl%>Custom/Bootstrap/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="<%hosturl%>Custom/Bootstrap/1.10.22-jquery.dataTables.min.css"/>
+	<link rel="stylesheet" type="text/css" href="<%hosturl%>Custom/Bootstrap/1.6.5-buttons.dataTables.min.css"/> 
+	<link rel="stylesheet" type="text/css" href="<%hosturl%>Custom/Bootstrap/4.5.2-bootstrap.css"/>  
+
+	<script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/jquery.min.js"></script>
+    <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/bootstrap.min.js"></script>
+	<script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/1.10.22-jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/1.2.2-buttons.print.min.js"></script>
+    <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/1.6.5-dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/3.1.3-jszip.min.js"></script> 
+    <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/0.1.53-vfs_fonts.js"></script>
+    <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/1.6.5-buttons.html5.min.js"></script>
+<script>
+var	id='';
+var requirementTag='';
+var shortTitle='';
+var	text='';
+var	state='';
+var	source='';
+var	attribute='';
+var	derivedFrom='';
+var	applicability='';
+function exportToWord(id){
+  var html, link, blob, url, css;
+  let title = $('#title').html();
+  if(title != ''){
+		title = title.trim();
+	}
+   css = (
+     '<style>' +
+     '@page WordSection1{size: 841.95pt 595.35pt;mso-page-orientation:landscape;}' +
+     'div.WordSection1 {page: WordSection1;}' +
+	 'h2 {font-family: "Times New Roman", Arial; font-size: 16pt; color:#007bff;}'+
+     'h4 {font-family: "Times New Roman", Arial; font-size: 14pt; color:#007bff !important;  text-decoration: underline;}'+
+     'table{border-collapse:collapse;width:100%;}tr{border:1px gray solid;width:5em;padding:2px;}th{border:1px gray solid;width:5em;padding:2px;font-size: 10pt;}td{border:1px gray solid;width:5em;padding-right:10px;text-align:start;margin-right: 20px;font-size: 10pt;}'+
+	 '</style>'
+   );
+   html = '<div><h2 style="text-align:center; color:#007bff;">'+
+			title+'</h2></div>' ;
+   html += window.doc.innerHTML;
+   html += '<br>';															
+   blob = new Blob(['\ufeff', css + html], {
+     type: 'application/msword'
+   });
+   url = URL.createObjectURL(blob);
+   link = document.createElement('A');
+   link.href = url;
+   link.download = title+'_for_'+id;   
+   document.body.appendChild(link);
+   if (navigator.msSaveOrOpenBlob ) navigator.msSaveOrOpenBlob( blob, 'Document.doc'); // IE10-11
+   		else link.click();  // other browsers
+   document.body.removeChild(link);
+ }
+</script>
+<style>
+<!--   CSS   -->
+table.pretty thead th {
+	text-align: center;
+	background: #000000;
+}
+#tdID td, tr{
+	border: 2px solid #000000;
+}
+.trdisable:hover {
+	background-color: #ffffff !important
+}
+.footer {
+	left: 0;
+	background-color: #ffffff;
+	bottom: 5px;
+	width: 100%;
+	top: 50%;
+	height: 60px;
+	position: relative;
+}
+table {
+	width: 100%;
+}
+label {
+	display: inline-flex;
+	margin-bottom: .5rem;
+	margin-top: .5rem;
+}
+.nowrap {
+	white-space: nowrap;
+}
+</style>
+</head>
+<%dateformat MM/dd/yyyy h:mm:ss a%>
+<%datetimeformat MM/dd/yyyy h:mm:ss a%>
+<%sortby &sortby%>
+<%begindetail%>
+<body>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <div class="col-md-12">
+            <ul class="navbar-nav">
+                <div class="col-md-4"> 
+                    <a class="navbar-brand" href="https://www.terumobct.com/" target="_blank">
+                        <img style="height: 35px; margin-left: -30px; width: 225px;"  class="terumologo" src="<%hosturl%>Custom/Images/TerumoBCT.png" title="TERUMOBCT" align="middle">
+                    </a>
+                </div>
+                <div class="col-md-7">
+                    <h2 class="float-left text-white" id="title">&reporttitle</h2>
+                </div>
+                <!-- Dropdown -->
+                <div class="col-md-1 ml-7">
+                    <li class="nav-item dropleft">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbardrop" data-toggle="dropdown">Action</a>
+                        <div class="dropdown-menu">
+							<a onclick="exportToWord('<%ID%>')" class="dropdown-item" href="#">
+									<img src="<%hosturl%>Custom/Images/microsoft-word.png" 
+									class="img-fluid rounded text-white"  alt="Export to Word" 
+									style="height: 29px;"/><label style="margin-left:1.2rem;">Word</label>
+							</a>
+                            <a id ="ExportReporttoExcel"  class="dropdown-item datatable-excel"  href="#">
+                                <img src="<%hosturl%>Custom/Images/microsoft-excel.png" class="img-fluid rounded text-white" alt="Eport to Excel" style="height: 30px;"/>
+                                <label style="margin-left:1rem;">Excel</label>
+                            </a>
+                            <a id="ExportReporttoPDF" class="dropdown-item"  href="#">
+                                <img src="<%hosturl%>Custom/Images/PDF_file_icon.svg.png" class="img-fluid rounded text-white" alt="Export to PDF" style="height: 25px; width: 24px;margin-left: 2px;"/>
+                                <label style="margin-left:1.2rem;">PDF</label>
+                            </a>                           
+							<a class="dropdown-item" href="<%hosturl%>im/runreport?selection=&currentReportName&issues=<%ID%>">
+                                <img src="<%hosturl%>Custom/Images/rerun.png" class="img-fluid rounded text-white" alt="Re-Run Prport" style="height: 30px;"/>
+                                <label style="margin-left:1rem;">Re-Run</label>
+                            </a>
+                        </div>
+                    </li>
+                </div>
+            </ul>
+        </div>
+    </nav>
+    <hr>
+	<div id ="doc"><!-- for word export -->
+	 <div class="wordSection1"><!-- for word export -->
+	   <div class="ml-5 col-md-12 col-lg-11">
+	    <div style="width:102%">
+		    <table  class="table table-border border-dark" id ="tdID"><!-- Document Table1  -->
+                <thead class="text-center">
+			        <tr>
+				        <th style="border: 1px solid black;" colspan="6">&reporttitle for : <a id="documentLink" href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%ID%>" target="_blank"><%ID%></a></th>
+			        </tr>
+			    </thead>
+				<tbody id="tableDetail">	
+					<tr class="tableID">
+						<th colspan="1">Project</th>
+						<td colspan="5"><%Project%></td>
+					</tr>
+					<tr>
+						<th>LLR Document name</th>
+						<td ><%Short Title%></td>
+						<th>Document State </th>
+                        <td><%State%></td>
+                        <th >Doc Owner</th>
+						<td><%Created By%></td>
+					</tr>
+					<tr>
+						<th >Reviewed By</th>
+						<td ><%Modified By%></td>
+						<th >Approved By</th>
+						<td	colspan="3"> Administrator</td>
+					</tr>
+					<tr>
+						<th >Published on</th>
+						<td ><%currentdate%></td>
+						<th>Rev No</th>
+						<td colspan="3">1.1</td>
+					</tr>
+				</tbody>
+			</table>
+		</div><!-- End Table1 -->
+		<br><br>
+	    <div  style="width: 102%;"><!--	Content Table2 -->
+			<table id="detailTable"  class="table table-striped table-bordered" style="width:100%">
+					<thead>
+						<tr>		
+							<th style="text-align:center;" id ="headingMitigations" colspan="7" >&reporttitle</th>				
+						</tr>
+						<tr id = "subHeading" class="thead-dark">
+							<th>Requirement</th>
+							<th>Text</th>
+							<th>Status</th>
+							<th>Source</th>
+							<th>Attribute</th>
+							<th>Derived Form</th>
+							<th>Applicability</th>
+						</tr>
+					</thead>
+					<tbody id="myTable">
+						<script><!-- Start Relationship Details -->
+							<%beginrelationshipsdetail Query[(walk[<%builtin Contains%>] <%ID%>)]%>	<!-- To get contents -->	
+								if("<%Relationship Category%>" !="Heading" && "<%Relationship Category%>" !="Comment"){
+									if("<%Relationship State%>" === "Approved" || "<%Relationship State%>" ==="Agreed" || "<%Relationship State%>" ==="Released"){ <!-- Filter LLR Document based on state(Approved & Accepted)-->
+											id='<%Relationship <%builtin ID%>%>';
+											requirementTag='<%Relationship Requirement Tag%>';
+											shortTitle='<%Relationship Short Title%>';
+											text='<%Relationship  Text%>';
+											state='<%Relationship  <%builtin State%>%>';
+											source='<%Relationship Source%>'; 
+											attribute='<%Relationship Attribute%>';
+											derivedFrom='<%Relationship Derived From%>';
+											applicability='<%Relationship Applicability%>';
+										document.write('<tr><td class="text-nowrap"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship <%builtin ID%>%>" target="_blank">'+requirementTag+" :</br>"+shortTitle+'</a></td><td>'+text+'</td><td>'+state+'</td><td>'+source+'</td><td>'+attribute+'</td><td>'+derivedFrom+'</td><td>'+applicability+'</td></tr>');
+									}
+								}	
+							<%endrelationshipsdetail%> <!-- End Relationship Details -->							
+						</script>
+					</tbody>
+				</table>
+			</div><!-- End Table2 -->
+		</div>
+	  </div>
+    </div>
+    <div class="footer" id="pageFooter"><!-- Footer -->
+	    <hr>
+	    <div class="text-center">&reportfooter</div>
+		<div class="text-center"><%currentdate%></div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $("#detailTable").DataTable({
+			 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+			 "autoWidth": false,
+			 "paging": false,
+			 "ordering": true,
+			 "info": false,
+                dom: 'Brtip',
+                buttons: [{
+                    extend: 'excelHtml5',<!-- Excel Export -->
+                    title: '&reporttitle <%ID%>'
+                }, 'print' 
+				],			
+            });
+			$("#ExportReporttoExcel").on("click", function() {
+				$(".buttons-excel").trigger("click");
+			});
+			$("#ExportReporttoPDF").on("click", function() {
+				$(".buttons-print").trigger("click");
+			});
+			$(".dt-buttons").css("display","none");
+        });
+    </script>
+</body>
+<%enddetail%>
+</html>

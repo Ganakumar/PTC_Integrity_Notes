@@ -1,0 +1,508 @@
+ 
+<%version 1%>
+<%description
+    <b>Data: </b>Interface Control Trace Report<br>
+    <b>Notes: </b>This report displaysInterface Control Trace details.<br>
+%>
+<%param 
+    name="reporttitle" 
+    type="String" 
+    prompt="Report Title" 
+    value="Interface Control Trace Report" 
+    description="Descriptive title for your report."
+%>
+
+<%param
+    name="reportfooter" 
+    type="MultiString" 
+    prompt="Report Footer" 
+    value="" 
+    description="Text appearing at the bottom of the report page."
+%>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" href="<%hosturl%>Custom/Bootstrap/bootstrap.min.css">
+  <script src="<%hosturl%>Custom/Bootstrap/jquery.min.js"></script>  
+  <script src="<%hosturl%>Custom/Plugin/popper.min.js"></script>
+  <script src="<%hosturl%>Custom/Bootstrap/bootstrap.min.js"></script>
+<title>&reporttitle</title>
+<script type="text/javascript">
+var headingText=''; 
+var childCount = 0;
+var llrDisplayed = false;
+var llrCount = 0;
+var shortTitle ='';
+var reqTag = '';
+var textICD = '';
+var textLLR = '';
+var category = '';
+var icdTag = '';
+var icdCount = 0;
+var icdShown = false;
+var mapPanelStatusHolder = new Map();
+function exportToExcel(element) {
+	let  table = element.id;
+	let anchorId = table.replace('childTable','anchor');
+	var worksheetName = $('#'+anchorId).text();
+	let fileName = $('#title').html();
+	if(fileName != ''){
+		fileName = fileName.trim();
+	}
+    fileName = fileName?fileName+'.xls':'ICD_Document.xls';
+	let uri = 'data:application/vnd.ms-excel;base64,'
+		,
+		template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><br><table>{table}</table></body></html>'
+		, base64 = function (s) {
+			return window.btoa(unescape(encodeURIComponent(s)))
+		}
+		, format = function (s, c) {
+			return s.replace(/{(\w+)}/g, function (m, p) {
+				return c[p];
+			})
+		}
+	if (!table.nodeType) table = document.getElementById(table)
+	let ctx = {worksheet: worksheetName || 'Worksheet', table: table.innerHTML}
+	let a = document.createElement('a');
+	a.href = uri + base64(format(template, ctx))
+	a.download = fileName;
+	a.click(); 
+ }
+ function exportToWord(id){
+  var html, link, blob, url, css;
+  let title = $('#title').html();
+  if(title != ''){
+		title = title.trim();
+	}
+let mapBtnExcels = new Map();
+	for(let index = 1; index <= childCount ; index ++){
+		let strIndex = index.toString();
+		let divButtonParentId = 'btnExcelParent'+ strIndex; 
+		let divButton = document.getElementById('excelBtn'+strIndex);
+		mapBtnExcels.set(divButtonParentId,divButton);
+		divButton.parentNode.removeChild(divButton);
+ }
+   css = (
+     '<style>' +
+     '@page WordSection1{size: 841.95pt 595.35pt;mso-page-orientation:landscape;}' +
+     'div.WordSection1 {page: WordSection1;}' +
+	 'h2 {font-family: "Times New Roman", Arial; font-size: 16pt; color:#007bff;}'+
+     'h4 {font-family: "Times New Roman", Arial; font-size: 14pt; color:#007bff !important;  text-decoration: underline;}'+
+	 '.tdSection{text-align:center;}'+
+     'table{border-collapse:collapse;width:100%;}tr{border:1px gray solid;width:5em;padding:2px;}th{border:1px gray solid;width:5em;padding:2px;font-size: 10pt;}td{border:1px gray solid;width:5em;padding-right:10px;text-align:start;margin-right: 20px;font-size: 10pt;}'+
+     '.llrDiv{mso-data-placement:same-cell;}'+
+	 '.noData{text-align:center;font-weight: bold;}'+
+	 '</style>'
+   );
+   html = '<div><h2 style="text-align:center; color:#007bff;">'+
+			title+'</h2></div>' ;
+   html += window.doc.innerHTML;
+   html += '<br>';															
+   blob = new Blob(['\ufeff', css + html], {
+     type: 'application/msword'
+   });
+   url = URL.createObjectURL(blob);
+   link = document.createElement('A');
+   link.href = url;
+   link.download = title+'_for_'+id;   
+   document.body.appendChild(link);
+   if (navigator.msSaveOrOpenBlob ) navigator.msSaveOrOpenBlob( blob, 'Document.doc'); // IE10-11
+   		else link.click();  // other browsers
+   document.body.removeChild(link);
+   for (let [key, value] of mapBtnExcels){
+	document.getElementById(key).appendChild(value); 
+   }
+ }
+ /* pdf export
+function exportToPdf(id){
+	//window.print();	
+}*/
+function   onCollapseExpandClicked(){
+	let currentText = $('#collapseExpand').text();
+	let imgSrc = document.getElementById('colapseExpandImg').src ;
+	if(currentText == 'Collapse All'){
+		imgSrc = imgSrc.replace('collapse','expand');
+	    $('#colapseExpandImg').attr('src',imgSrc);
+		$('#collapseExpand').text('Expand All');
+		$('.panel-collapse').collapse('hide');
+	}
+	else if(currentText =='Expand All'){	
+		imgSrc = imgSrc.replace('expand','collapse');
+	    $('#colapseExpandImg').attr('src',imgSrc);
+		$('#collapseExpand').text('Collapse All');
+		$('.panel-collapse').collapse('show');
+	}
+}
+function checkAllPanelStatus(){
+let setPanelsStatus = new Set();
+	for(let value of mapPanelStatusHolder.values()){
+	setPanelsStatus.add(value);
+	}
+	if(setPanelsStatus.size == 1){
+	return true;
+	}
+	else{
+	return false;
+	}
+}
+$(document).ready(function() {
+		$('[data-toggle="tooltip"]').tooltip();
+		 if(childCount == 0){
+		 $('#colapseExpandAnchor').attr('hidden',true);
+		}
+		else{
+		$('#colapseExpandAnchor').attr('hidden',false);
+		}
+		 $('.panel-collapse').on('show.bs.collapse', function () {
+			$(this).siblings('.panel-heading').addClass('active');
+			let id = $(this)[0].id;
+			mapPanelStatusHolder.set(id,true);
+			let buttonId = id.replace('ChildId','excelBtn');
+			$('#'+buttonId).attr('hidden',false);
+			if(checkAllPanelStatus()){
+			let imgSrc = document.getElementById('colapseExpandImg').src ;
+			$('#collapseExpand').text('Collapse All');
+			imgSrc = imgSrc.replace('expand','collapse');
+			$('#colapseExpandImg').attr('src',imgSrc);
+			};
+		  });
+		  $('.panel-collapse').on('hide.bs.collapse', function () {
+			$(this).siblings('.panel-heading').removeClass('active');
+			let id = $(this)[0].id;
+			mapPanelStatusHolder.set(id,false);
+			let buttonId = id.replace('ChildId','excelBtn');
+			$('#'+buttonId).attr('hidden',true);
+			if(checkAllPanelStatus()){
+			let imgSrc = document.getElementById('colapseExpandImg').src ;
+			$('#collapseExpand').text('Expand All');
+			imgSrc = imgSrc.replace('collapse','expand');
+			$('#colapseExpandImg').attr('src',imgSrc);
+			};		
+		  });
+		$('#docOverviewPanel').collapse({
+		toggle:false
+		});
+} );
+</script>
+<style>
+tr, th, td,thead,table
+{
+	border: 1px solid #000000;
+	border-top:1px solid #000000 !important;
+}
+.terumologo{
+	margin-top: 10px;
+	margin-left: -20px;
+	margin-bottom: 20px;
+
+	}
+img:hover {
+  box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+body {
+    overflow-x: hidden;
+}
+
+.footer{
+margin-top: 40;
+}
+.titleClass{
+margin-bottom: 20;
+}
+.customdpdown{
+margin-left: 20;
+}
+h2{
+margin-top: .5rem;
+}
+@media print {
+     
+	    html {
+        border: 1px solid white;
+        height: 99%;
+        page-break-after: avoid;
+        page-break-before: avoid;
+	    font-family:"Times New Roman";
+     }
+}
+.noData{
+text-align:center;
+background-color:#DCDCDC;
+font-weight: bold;
+}
+.tdSection{
+text-align:center;
+font-weight: bold;
+}
+h4{
+  color:#007bff !important;
+}
+</style>
+</head>
+<%dateformat MM/dd/yyyy h:mm:ss a%>
+<%datetimeformat MM/dd/yyyy h:mm:ss a%>
+<%sortby &sortby%>
+<%begindetail%>
+<body>
+
+		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+			<div class="col-md-12">
+				<ul class="navbar-nav">
+					<div class="col-md-1>				  
+						<a class="navbar-brand">
+						  <img id ="logo"class="terumologo" src="<%hosturl%>Custom/Images/TerumoBCT.png" height="35px" width="180px" align="middle">
+						</a>
+					</div>
+					<div class="title col-md-10">
+						<h2 class="text-center text-white" id="title">&reporttitle
+						</h2>
+					</div>
+
+					<div class="col-md-1">
+						<li class="nav-item dropleft">
+
+							  <a class="nav-link dropdown-toggle text-white" href="#" id="navbardrop" data-toggle="dropdown" style="margin-left: -35px; margin-top:.5rem;">
+
+								Action
+
+							  </a> 
+
+
+							  <div class="dropdown-menu" style="margin-right:34px">
+								<!-- pdf print
+								<a class="dropdown-item" onclick="exportToPdf('<%ID%>');" href="#">
+									<img src="<%hosturl%>Custom/Images/PDF_file_icon.svg.png" 
+									class="img-fluid rounded text-white"  alt="Export to PDF" 
+									style="height: 25px; width: 24px;margin-left: -6px;"/><label style="margin-left:1.1rem;">Export PDF</label>
+								</a> -->
+								<a onclick="exportToWord('<%ID%>')" class="dropdown-item" href="#">
+									<img src="<%hosturl%>Custom/Images/microsoft-word.png" 
+									class="img-fluid rounded text-white"  alt="Word" 
+									style="height: 29px;margin-left: -9px;"/><label style="margin-left:1rem;">Word</label>
+								</a>
+								<a class="dropdown-item" href="<%hosturl%>im/runreport?selection=&currentReportName&issues=<%ID%>">
+									<img src="<%hosturl%>Custom/Images/rerun.png" 
+									class="img-fluid rounded text-white"  alt="Re-Run Prport" 
+									style="height: 30px;margin-left: -9px;"/><label style=" margin-left:1rem;">Re-Run</label>
+								</a>
+								<a class="dropdown-item" onclick="onCollapseExpandClicked();" id="colapseExpandAnchor" >
+									<img  id ="colapseExpandImg" src="<%hosturl%>Custom/Images/collapse.png" 
+									class="img-fluid rounded text-white"  
+									style="height: 25px; width: 24px;margin-left: -6px;"/>
+									<label id ="collapseExpand" style=" margin-left:1rem;">Collapse All</label>
+								</a>
+							</div>
+						</li>
+					</div>
+				</ul>
+			</div>
+		</nav>
+        <br>
+	    <br>
+		
+		<div id ="doc"><!-- for word export -->
+		<div class="wordSection1"><!-- for word export -->
+			<div class="ml-5 col-md-12 col-lg-11 wrapper center-block" > <!-- row body -->
+
+							<div >
+							  <h4 class="panel-title">
+								
+								  Document Overview
+								
+							  </h4>
+							</div>
+
+								<!-- Overview table -->	
+								<table  class="table  border border-dark" >
+
+									<tbody>	
+										<tr class="text-center">
+
+											<th style="border: 1px solid black;" colspan="6">
+
+												Interface Control Trace Report for <a id="documentLink" href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%ID%>" target="_blank"><%ID%></a>
+											
+											</th>
+										</tr>
+										<tr class="tableID">
+
+											<th colspan="1">Project</th>
+
+											<td colspan="5"><%Project%></td>
+										</tr>
+										<tr>
+											<th>Document name</th>
+											<td ><%Short Title%></td>
+											<th>Document State </th>
+
+											<td><%State%></td>
+
+											<th >Doc Owner</th>
+
+											<td><%Created By%></td>
+
+										</tr>
+
+										<tr>
+											<th >Reviewed By</th>
+
+											<td ><%Modified By%></td>
+											<th >Approved By</th>
+
+											<td	colspan="3"> Administrator</td>
+
+										</tr>
+										<tr>
+											<th >Published on</th>
+
+											<td ><%currentdate%></td>
+
+											<th>Rev No</th>
+
+											<td colspan="3">1.1</td>
+
+										</tr>
+
+									</tbody>
+								</table>	
+							
+					<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+			        <script>
+					<%beginrelationshipsdetail  Contains%> // go to headings
+					headingText = "<%Relationship Text%>";
+					category = "<%Relationship Category%>";
+					if(headingText !== '' &&  category =="Heading"){
+						childCount ++ ;
+						document.write('<div id ="div'+childCount+'" class="panel panel-default mt-3">'+
+											'<div class="panel-heading clearfix" role="tab" id=childHeading"'+childCount+'">'+
+											'<div class="float-left">'+
+												'<h4 class="panel-title">'+
+												'<div data-toggle="tooltip" id="tooltip'+childCount+'" data-placement="top">'+
+												'<a class="collapsed" id="anchor'+childCount+'" role="button" data-toggle="collapse"  data-parent="#accordion"'+ 
+												'href="#ChildId'+childCount+'" aria-expanded="false" aria-controls="ChildId'+childCount+'">'+
+												headingText+
+												'</a>'+ 
+												 '<span hidden id="countWord'+childCount+'"></span>'+
+												  '</div></h4></div>' +
+												  '<div class="float-right" id="btnExcelParent'+childCount+'"><button class="btn btn-info" onclick="exportToExcel(childTable'+childCount+');" id="excelBtn'+childCount+'" style="margin-bottom:15px;">Export excel</button></div>'+
+											'</div>'+
+											'<div id="ChildId'+childCount+'" class="panel-collapse collapse in show" role="tabpanel"'+
+											'aria-labelledby=childHeading"'+childCount+'">'+
+											'<div class="panel-body">'+	
+											'<table class="table"  id="childTable'+childCount+'">'+
+											'<thead class="text-center">'+	
+											'<tr><td colspan="2" class="tdSection">ICD</td><td class="tdSection" colspan="2">Requirements</td></tr>'+										
+											'<tr class="text-white bg-dark" >'+
+											'<th>ICD tag</th>'+							
+											'<th>Text</th>'+
+											'<th>Requirement</th>'+
+											'<th>Text</th>'+
+											'</tr></thead><tbody>');
+						<%beginrelationshipsdetailL2 Contains%>
+						if('<%RelationshipL2 State%>' != "Obsolete"){
+						 textICD = '<%RelationshipL2 Text%>';
+						 if( textICD ==='' || textICD === '&nbsp;'){
+							textICD =  '--No Data--';
+							}
+						icdTag = '<%RelationshipL2 ICD Tag%>';
+							  if( icdTag ==='' || icdTag === '&nbsp;'){
+								icdTag =  '--No Data--';
+							 }
+						 if(icdTag === '--No Data--'){
+						 document.write('<tr><td id="<%RelationshipL2 ID%>">'+icdTag+'</td>'+
+									  '<td id="text<%RelationshipL2 ID%>">'+textICD+'</td>');
+						 }
+						 else{
+						 document.write('<tr><td id="<%RelationshipL2 ID%>"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 ID%>" target="_blank">'+icdTag+'</a>'+'</td>'+'<td id="text<%RelationshipL2 ID%>">'+textICD+'</td>');
+						 }
+						textICD = '';
+						icdTag = '';
+						icdCount ++
+						icdShown = true;
+							<%beginrelationshipsdetailL3 Satisfies%>
+								if("<%RelationshipL3 State%>" === "Approved"  || "<%RelationshipL3 State%>" === "Agreed")//filter llr based on states 
+									{
+								       llrCount ++;
+									   reqTag = '<%RelationshipL3 Requirement Tag%>';
+									   shortTitle = '<%RelationshipL3 Short Title%>';
+									   textLLR = '<%RelationshipL3 Text%>';
+									   if( ((reqTag ==='' || reqTag === '&nbsp;')&&(shortTitle ==='' || shortTitle === '&nbsp;')) === false)
+										{
+										  reqTag +=' : ';
+										}
+										else{
+										  reqTag =  '--No Data--';
+										}
+										if( textLLR ==='' || textLLR === '&nbsp;'){
+										textLLR =  '--No Data--';
+										}
+									   if(llrCount >1){
+									     document.write('<tr><td>'+reqTag+shortTitle+'</td>'+
+														'<td>'+textLLR+'</td></tr>'
+														);
+									   }
+									   else{
+											document.write('<td>'+reqTag+shortTitle+'</td>'+
+														'<td>'+textLLR+'</td></tr>'
+														);
+									   }
+									   llrDisplayed = true;
+									   reqTag = '';
+									   shortTitle = '';
+									   textLLR = '';
+									}
+							<%beginrelationshipsection none%>   //No llrs
+							document.write('<td>--No Relation--</td><td>--No Relation--</td></tr>');
+							llrDisplayed = true;
+							<%endrelationshipsection%>
+							<%endrelationshipsdetailL3%> 
+							if(llrCount >1){
+									$("#<%RelationshipL2 ID%>").attr("rowspan",llrCount);
+									$("#text<%RelationshipL2 ID%>").attr("rowspan",llrCount);
+								}
+								if(!llrDisplayed){
+									document.write('<td>--No Data--</td><td>--No Data--</td></tr>');
+								}
+								llrDisplayed = false;
+								llrCount = 0;
+							}	
+							<%endrelationshipsdetailL2%> 
+						$("#tooltip"+childCount).attr('title','ICR Count: '+icdCount); 
+						//$("#countWord"+childCount).text('(ICR Count: '+icdCount+')'); 
+						icdCount = 0;
+						if(!icdShown){
+						document.write('<tr class="noData"><td colspan="4">--No Data Available--</td></tr>');
+						}
+						document.write('</tbody></table></div></div></div>');
+					}
+					headingText='';
+					category = '';
+					icdShown = false;
+					<%endrelationshipsdetail%> 
+					</script>
+
+				</div>	
+			</div> 
+			
+		</div>
+		</div><!-- container for word closed -->
+
+		<div class="footer"> 
+
+		<hr>	
+			<div class="text-center py-3">
+				&reportfooter
+				<p><%currentdate%></p>
+			</div>
+		
+		</div>
+			
+</body>
+<%enddetail%>
+</html>
+
+
+
+

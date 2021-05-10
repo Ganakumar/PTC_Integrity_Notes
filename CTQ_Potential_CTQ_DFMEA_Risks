@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>CTQ & Potential CTQ DFMEA Risks</title>
+	<link rel="stylesheet" type="text/css" href="<%hosturl%>Velux/reports/plugins/1.10.24-jquery.dataTables.min.css"/>
+	
+	<script type="text/javascript" src="<%hosturl%>Velux/reports/plugins/jquery.min.js"></script>
+
+	<script type="text/javascript" src="<%hosturl%>Velux/reports/plugins/1.10.24-jquery.dataTables.min.js"></script>
+	
+
+
+<style>
+
+table, td, th {
+  border: 1px solid black;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+</style>
+</head>
+
+<body>
+
+    <br><br>
+	
+	   <div class="ml-5 col-md-12 col-lg-11">
+	   
+		<br>
+		 <div>
+			<h3>CTQ & Potential CTQ DFMEA Risks</h3>
+			<br>
+		    <table  class="" id ="tableTwo"><!-- Document Table1  -->
+                <thead >
+			         <tr style="background-color:salmon;color:black;">
+				      <th>ID</th>
+					  <th>CTQ</th>
+					  <th>Severity</th>
+					  <th>Occurrence</th>
+					  <th>Detection</th>
+					  <th>RPN</th> 
+					  <th>Res. RPN</th> 
+					  <th>Res. Severity</th>
+					  <th>Res. Occurence</th>
+					  <th>Res. Detection</th>
+			        </tr>
+			    </thead>
+				<tbody id="tBodyTwo">
+					
+					
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<script>
+	</script>
+	<%begindetail%>
+	<script>
+	 if('<%CTQ%>' == 'Yes'  || '<%CTQ%>' == 'Potential'){
+	  $('#tBodyTwo').append($('<tr>').append('<td><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%ID%>" target="_blank"><%ID%></a></td>').append('<td><%CTQ%></td>').append('<td><%Severity%></td>').append('<td><%Occurrence%></td>').append('<td><%Detection%></td>').append('<td><%RPN%></td>').append('<td><%Residual RPN%></td>').append('<td><%Residual Severity%></td>').append('<td><%Residual Occurrence%></td>').append('<td><%Residual Detection%></td>'));
+	 }
+	</script>
+	<%enddetail%>
+    <script>
+        $(document).ready(function(){
+		$("#tableTwo").DataTable({
+			 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+			 "autoWidth": false,
+			 "paging": false,
+			 "order":[[5,"desc"]],
+			 "ordering": true,
+			 "info": false,
+                dom: 'Brtip'    		
+            });	
+        });
+    </script>
+</body>
+
+</html>

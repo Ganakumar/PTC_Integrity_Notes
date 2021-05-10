@@ -1,0 +1,383 @@
+<%version 1%>
+
+<%param 
+    name="reporttitle" 
+    type="String" 
+    prompt="Report Title" 
+    value="VELUX- Compare FMEA Scoring"
+%>
+<%param 
+    name="DFMEA_Exclude_Category" 
+    type="MultiString" 
+    prompt="DFMEA_Exclude_Category" 
+    value="Heading~Comment"
+%>
+<%param 
+    name="PFMEA_Exclude_Category" 
+    type="MultiString" 
+    prompt="PFMEA_Exclude_Category" 
+    value="Heading~Comment~Success Criteria~Process Step~Item/Function"
+%>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="shortcut icon" href="<%hosturl%>Velux/reports/images/velux.png" />
+		<link rel="stylesheet" href="<%hosturl%>Velux/reports/plugins/bootstrap.min.css" />
+		<script src="<%hosturl%>Velux/reports/plugins/jquery.min.js"></script>
+		<script src="<%hosturl%>Velux/reports/plugins/popper.min.js"></script>
+		<script src="<%hosturl%>Velux/reports/plugins/bootstrap.min.js"></script>
+<title>&reporttitle</title>
+<script type="text/javascript">
+var mapPanelStatusHolder = new Map();
+var relCount = 0;
+var arrDfmeaRel = [];
+var arrPfmeaRel = [];
+ function   onCollapseExpandClicked(){
+	let currentText = $('#collapseExpand').text();
+	if(currentText == 'Collapse All'){
+		$('#collapseExpand').text('Expand All');
+		$('.panel-collapse').collapse('hide');
+	}
+	else if(currentText =='Expand All'){
+		$('#collapseExpand').text('Collapse All');
+		$('.panel-collapse').collapse('show');
+	}
+}
+function showHide(arrElemensts,action){
+arrElemensts.forEach(ele=>{
+	$('#'+ele).attr('hidden',action);
+});
+}
+function dActionClicked(){
+	let currentText = $('#dAction').text();
+	if(currentText === 'Show Actions'){
+		showHide(arrDfmeaRel,false);
+		$('#dAction').text('Hide Actions');
+	}
+	else{
+		showHide(arrDfmeaRel,true);
+		$('#dAction').text('Show Actions');
+	}
+}
+function pActionClicked(){
+	let currentText = $('#pAction').text();
+	if(currentText === 'Show Actions'){
+		showHide(arrPfmeaRel,false);
+		$('#pAction').text('Hide Actions');
+	}
+	else{
+	showHide(arrPfmeaRel,true);
+		$('#pAction').text('Show Actions');
+	}
+}
+function checkAllPanelStatus(){
+let setPanelsStatus = new Set();
+	for(let value of mapPanelStatusHolder.values()){
+	setPanelsStatus.add(value);
+	}
+	if(setPanelsStatus.size == 1){
+	return true;
+	}
+	else{
+	return false;
+	}
+}
+function isCategoryPresent(arrCategories,strCategory){
+	let isPresent = false;
+	for(let i = 0; i<arrCategories.length ; i++){
+		if(strCategory == arrCategories[i]){
+		 isPresent = true;
+		 break;
+		}
+	}
+	return isPresent;
+}
+</script>
+<style>
+tr, th, td,thead,table
+{
+	border: 1px solid #000000;	
+}
+
+img:hover {
+	box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+body {
+    overflow-x: hidden;
+}
+th{
+	font-size: 110%;
+}
+
+.card{
+box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+ -webkit-transition: .25s box-shadow;
+ transition: .25s box-shadow;
+}
+.card:focus, .card:hover {
+ box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+}
+.title{
+	margin-bottom: 20;
+	color:white;
+	text-align:center;
+}
+.actionTr{
+background-color:lightgrey;
+}
+.actionTitle{
+text-align:center;
+}
+h2{
+	margin-top: .5rem;
+	text-color:white;
+}
+h4{
+   color: #007bff;
+}
+#collapseExpand{
+margin-right:-10px;
+}
+@media print {   
+	html {
+		border: 1px solid white;
+        height: 99%;
+        page-break-after: avoid;
+        page-break-before: avoid;
+	    font-family:"Times New Roman";
+    }
+}
+
+</style>
+</head>
+<%dateformat MM/dd/yyyy h:mm:ss a%>
+<%datetimeformat MM/dd/yyyy h:mm:ss a%>
+<%sortby &sortby%>
+<body>
+		
+	<div class="container-fluid">
+	   <div class="row">
+		   <nav class="navbar navbar-expand-sm bg-dark fixed-top navbar-dark" style="height: 10%;">
+				<div class="col-md-1>	
+					<a href="http://velux.com" class="navbar-brand" data-toggle="tooltip" data-placement="right" title="&#169 VELUX" target="_blank"><img src="<%hosturl%>Velux/reports/images/velux.png" style="height: 30px; width: 24px;margin-left:20px"/></a>
+				</div>
+				<div class="col-md-10">
+					<h2  class="title" id="title">&reporttitle </h2>
+				</div>
+					
+				<div class="col-md-2">
+					<button id ="collapseExpand" class="btn btn-info" type="button" onclick="onCollapseExpandClicked();">Collapse All</button>
+				</div>
+			</diV>	
+		  </nav>
+	</div>
+		
+     <br>
+	 <br>
+	<div class="ml-5 col-md-12 col-lg-11 wrapper center-block" > <!-- row body -->
+	<br>
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				<div class="card mt-3 panel panel-default">
+					<div class="card-header panel-heading active" role="tab" id="headingOne">
+					  <h4 class="panel-title">
+						<a role="button" data-toggle="collapse"  data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+						  DFMEA Risks
+						</a>
+					  </h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingOne">
+						<div class="panel-body">
+													<div>
+						<br>
+							<div class="row">
+								 <div class="col-md-11"></div>
+								 <div class="col-md-2">
+									<button type="button" id ="dAction" class="btn btn-secondary" onclick="dActionClicked();">Show Actions</button>
+								 </div>
+							</div>
+							
+							<p id ="msgDFMEA" hidden class="text-warning">There are no Completed/Rescore Actions on the selected Risks</p>
+							<div>
+								<table class="table"  id="detailTable1">												
+									<thead class="bg-dark">															
+										<tr class="text-center text-white" >
+											<th >ID</th>
+												<th >Category</th>
+												<th >Failure Mode</th>
+												<th >Effect</th>
+												<th >Cause</th>
+												<th >Sev.</th>
+												<th >Occ.</th>
+												<th >Det.</th>
+												<th >RPN</th>
+												<th >Risk Profile</th>
+												<th >Res. Sev.</th>
+												<th >Res. Occ.</th>
+												<th >Res. Det.</th>
+												<th >Res. RPN</th>
+												<th >Res. Risk Profile</th>
+											
+										</tr>
+										</thead>
+										<tbody id="dfmeaBody"> 
+											
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+			   </div>
+						
+			
+				<div class="card mt-3 panel panel-default ">
+					<div class="card-header panel-heading" role="tab" id="headingTwo">
+						  <h4 class="panel-title">
+						  
+							<a class="collapsed " role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+							 PFMEA Risks
+							</a>
+				
+						  </h4>
+					</div>
+					<div id="collapseTwo" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingTwo">
+						<div class="panel-body">
+													<div>
+						<br>
+							<div class="row">
+								 <div class="col-md-11"></div>
+								 <div class="col-md-2">
+									<button type="button" id ="pAction" class="btn btn-secondary" onclick="pActionClicked();">Show Actions</button>
+								 </div>
+							</div>
+							<p id ="msgPFMEA" hidden class="text-warning">There are no Completed/Rescore Actions on the selected Risks</p
+							<div>
+								<table class="table"  >												
+									<thead class="bg-dark">															
+										<tr class="text-center text-white" >
+											<th >ID</th>
+												<th >Category</th>
+												<th >Failure Mode</th>
+												<th >Effect</th>
+												<th >Cause</th>
+												<th >Sev.</th>
+												<th >Occ.</th>
+												<th >Det.</th>
+												<th >RPN</th>
+												<th >Risk Profile</th>
+												<th >Res. Sev.</th>
+												<th >Res. Occ.</th>
+												<th >Res. Det.</th>
+												<th >Res. RPN</th>
+												<th >Res. Risk Profile</th>
+											
+										</tr>
+										</thead>
+										<tbody id="pfmeaBody"> 
+											
+										</tbody>
+									</table>
+								</div>
+							</div>
+					   </div>
+					</div>
+				</div>
+				
+			</div>
+		</div>	
+    <div class="footer"> 
+	<hr>	
+		<div class="text-center">
+		
+		</div>
+	</div>
+<script>
+let arrDFMEACategories = "&DFMEA_Exclude_Category".split("~");
+let arrPFMEACategories = "&PFMEA_Exclude_Category".split("~");
+let isActionShown = false;
+let pfmeaCount = 0;
+let dfmeaCount = 0;
+<%begindetail%>
+if(('<%Type%>' == 'DFMEA Risk' && !isCategoryPresent(arrDFMEACategories,'<%Category%>')) || ('<%Type%>' == 'PFMEA Risk' && !isCategoryPresent(arrPFMEACategories,'<%Category%>' ))){
+	let prefix = '';
+	if('<%Type%>' == 'DFMEA Risk'){
+	prefix = 'd';
+	dfmeaCount ++;
+	}
+	else{
+	prefix = 'p';
+	pfmeaCount ++;
+	}
+	if(isActionShown){
+		$('#'+prefix+'fmeaBody').append($('<tr hidden id="<%ID%>TitleBlank" >').append('<th  colspan="15" ></th>'));
+		$('#'+prefix+'fmeaBody').append($('<tr class="text-center text-white bg-dark" hidden id="<%ID%>Title" >').append('<th>ID</th>').append('<th>Category</th>').append('<th>Failure Mode</th>').append('<th>Effect</th>').append('<th>Cause</th>').append('<th>Sev.</th>').append('<th>Occ.</th>').append('<th>Det.</th>').append('<th>RPN</th>').append('<th>Risk Profile</th>').append('<th>Res. Sev.</th>').append('<th>Res. Occ.</th>').append('<th>Res. Det.</th>').append('<th>Res. RPN</th>').append('<th>Res. Risk Profile</th>'));
+		if(prefix === 'p'){
+		arrPfmeaRel.push('<%ID%>TitleBlank');
+		arrPfmeaRel.push('<%ID%>Title');
+		}
+		else{
+		arrDfmeaRel.push('<%ID%>TitleBlank');
+		arrDfmeaRel.push('<%ID%>Title');
+		}
+	}
+	$('#'+prefix+'fmeaBody').append($('<tr>').append('<td><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%ID%>" target="_blank"><%ID%></a></td>').append('<td ><%Category%></td>').append('<td ><%Failure Mode%></td>').append('<td ><%Effect%></td>').append('<td ><%Cause%></td>').append('<td ><%Severity%></td>').append('<td ><%Occurrence%></td>').append('<td ><%Detection%></td>').append('<td ><%RPN%></td>').append('<td ><%Risk Profile%></td>').append('<td ><%Residual Severity%></td>').append('<td ><%Residual Occurrence%></td>').append('<td ><%Residual Detection%></td>').append('<td ><%Residual RPN%></td>').append('<td ><%Residual Risk Profile%></td>'));
+	relCount = 0;
+	isActionShown = false;
+	<%beginrelationshipsdetail Actions%>
+		if('<%Relationship State%>' == 'Completed/Rescore'){
+		relCount ++ ;
+		if(relCount === 1){
+			$('#'+prefix+'fmeaBody').append($('<tr class="text-center text-white bg-dark" hidden id="<%ID%>Head" >').append('<th>ID</th>').append('<th>Summary</th>').append('<th>Action Type</th>').append('<th>Assigned User</th>').append('<th colspan="11" >Action Taken</th>'));
+				if(prefix === 'p'){
+				arrPfmeaRel.push('<%ID%>Head');
+				}
+				else{
+				arrDfmeaRel.push('<%ID%>Head');
+				}
+			}
+			$('#'+prefix+'fmeaBody').append($('<tr class="actionTr" hidden id="<%ID%>rel'+relCount+'" >').append('<td><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></td>').append('<td ><%Relationship Summary%></td>').append('<td ><%Relationship Action Type%></td>').append('<td ><%Relationship Assigned User%></td>').append('<td colspan="11"><%Relationship Action Taken%></td>'));
+			if(prefix === 'p'){
+			arrPfmeaRel.push('<%ID%>rel'+relCount);
+			}
+			else{
+				arrDfmeaRel.push('<%ID%>rel'+relCount);
+			}
+			isActionShown = true;
+		}
+	<%endrelationshipsdetail%>
+}
+$(document).ready(function() {
+	 $('.panel-collapse').on('show.bs.collapse', function () {
+		$(this).siblings('.panel-heading').addClass('active');
+		let id = $(this)[0].id;
+		mapPanelStatusHolder.set(id,true);
+		if(checkAllPanelStatus()){
+		$('#collapseExpand').text('Collapse All');
+		};
+	  });
+	  $('.panel-collapse').on('hide.bs.collapse', function () {
+		$(this).siblings('.panel-heading').removeClass('active');
+		let id = $(this)[0].id;
+		mapPanelStatusHolder.set(id,false);
+		if(checkAllPanelStatus()){
+		$('#collapseExpand').text('Expand All');
+		};	
+	  });
+	  if(arrPfmeaRel.length === 0){
+		$('#pAction').attr('hidden',true);
+		if(pfmeaCount>0){
+		$('#msgPFMEA').attr('hidden',false);
+		}
+		}
+	  if(arrDfmeaRel.length === 0){
+		$('#dAction').attr('hidden',true);
+			if(dfmeaCount>0){
+			$('#msgDFMEA').attr('hidden',false);
+			}
+		}
+});
+<%enddetail%>	
+</script>
+</body>
+						
+</html>

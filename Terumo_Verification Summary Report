@@ -1,0 +1,548 @@
+ 
+<%version 1%>
+<%description
+    <b>Data: </b>Verification Summary  Trace Report<br>
+    <b>Notes: </b>This report displays Verification Summary details.<br>
+%>
+<%param 
+    name="reporttitle" 
+    type="String" 
+    prompt="Report Title" 
+    value="Verification Summary Trace Report" 
+    description="Descriptive title for your report."
+%>
+
+<%param
+    name="reportfooter" 
+    type="MultiString" 
+    prompt="Report Footer" 
+    value="" 
+    description="Text appearing at the bottom of the report page."
+%>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" href="<%hosturl%>Custom/Bootstrap/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="<%hosturl%>Custom/Bootstrap/1.10.22-jquery.dataTables.min.css"/>
+
+  <script src="<%hosturl%>Custom/Bootstrap/jquery.min.js"></script>	
+  <script src="<%hosturl%>Custom/Bootstrap/bootstrap.min.js"></script>
+  <script type="text/javascript" src="<%hosturl%>Custom/Bootstrap/1.10.22-jquery.dataTables.min.js"></script>
+<title>&reporttitle</title>
+<script type="text/javascript">
+var testReportCount = 0;
+var outputCount = 0;
+var llrIds = '';
+var shortTitleTb1 ='';
+var reqTagTb1 = '';
+var shortTitleTb2 ='';
+var reqTagTb2 = '';
+var llrState = '';
+var protocolState = '';
+var testReult = '';
+var sampleSize = '';
+var accCriteria = '';
+var llrCountNonApprovedTb2 = 0;
+var llrCountTotalTb2 = 0;
+var nonApprovedProtocolsTb2 = 0;
+var protocalsTotalTb2 = 0;
+var noRowTb1 = true;
+var arrLLR = [];
+ function exportToWord(id){
+  var html, link, blob, url, css;
+  let title = $('#title').html();
+  if(title != ''){
+		title = title.trim();
+	}
+   css = (
+     '<style>' +
+     '@page WordSection1{size: 841.95pt 595.35pt;mso-page-orientation:landscape;}' +
+     'div.WordSection1 {page: WordSection1;}' +
+	 'h2 {font-family: "Times New Roman", Arial; font-size: 16pt;}'+
+     'h4 {font-family: "Times New Roman", Arial; font-size: 14pt;}'+
+     'table{border-collapse:collapse;width:100%;}tr{border:1px gray solid;width:5em;padding:2px;}th{border:1px gray solid;width:5em;padding:2px;font-size: 10pt;}td{border:1px gray solid;width:5em;padding-right:10px;text-align:start;margin-right: 20px;font-size: 10pt;}'+
+     '.llrDiv{mso-data-placement:same-cell;}'+
+	 '.noData{text-align:center;font-weight: bold;}'+
+	 '</style>'
+   );
+   html = '<div><h2 style="text-align:center; color:#007bff;">'+
+			title+'</h2></div>' ;
+   html += window.doc.innerHTML;
+   html += '<br>';															
+   blob = new Blob(['\ufeff', css + html], {
+     type: 'application/msword'
+   });
+   url = URL.createObjectURL(blob);
+   link = document.createElement('A');
+   link.href = url;
+   // Set default file name. 
+   // Word will append file extension - do not add an extension here.
+   link.download = title+'_for_'+id;   
+   document.body.appendChild(link);
+   if (navigator.msSaveOrOpenBlob ) navigator.msSaveOrOpenBlob( blob, 'Document.doc'); // IE10-11
+   		else link.click();  // other browsers
+   document.body.removeChild(link);
+ }
+function exportToPdf(id){
+	window.print();	
+}
+$(document).ready(function() {
+		 $('.panel-collapse').on('show.bs.collapse', function (){
+			$(this).siblings('.panel-heading').addClass('active');
+		  });
+		  $('.panel-collapse').on('hide.bs.collapse', function (){
+			$(this).siblings('.panel-heading').removeClass('active');
+		  });
+		$('#docOverviewPanel').collapse({
+		toggle:false
+		});
+            $("#reqTagTable").DataTable({			 
+			 "paging":   false,
+			 "ordering": true,
+			 "info":     false,
+			 "searching": false	
+            });
+
+} );
+</script>
+<style>
+
+
+tr, th, td,thead,table
+{
+	border: 1px solid #000000;
+	
+}
+.terumologo{
+	margin-top: 10px;
+	margin-left: -20px;
+	margin-bottom: 20px;
+
+	}
+img:hover {
+  box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+body {
+    overflow-x: hidden;
+}
+
+.footer{
+margin-top: 40;
+}
+.titleClass{
+margin-bottom: 20;
+}
+.customdpdown{
+margin-left: 20;
+}
+h2{
+margin-top: .5rem;
+}
+@media print {
+     
+	    html {
+        border: 1px solid white;
+        height: 99%;
+        page-break-after: avoid;
+        page-break-before: avoid;
+	    font-family:"Times New Roman";
+     }
+}
+.llrDiv{
+mso-data-placement:same-cell;
+}
+.noData{
+text-align:center;
+background-color:#DCDCDC;
+font-weight: bold;
+}
+
+</style>
+</head>
+<%dateformat MM/dd/yyyy h:mm:ss a%>
+<%datetimeformat MM/dd/yyyy h:mm:ss a%>
+<%sortby &sortby%>
+<%begindetail%>
+<body>
+
+		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+				<div class="col-md-12">
+				  <ul class="navbar-nav">
+						<div class="col-md-1>				  
+							<a class="navbar-brand" href="<%hosturl%>im/runreport?selection=&currentReportName&issues=<%ID%>">
+							  <img id ="logo"class="terumologo" src="<%hosturl%>Custom/Images/TerumoBCT.png" height="35px" width="180px" data-toggle="tooltip" data-placement="right" title="TERUMOBCT" align="middle">
+							</a>
+						</div>
+						<div class="title col-md-10">
+							<h2 class="text-center text-white" id="title">&reporttitle
+							</h2>
+						</div>
+
+						<div class="col-md-1">
+							<li class="nav-item dropleft">
+
+							  <a class="nav-link dropdown-toggle text-white" href="#" id="navbardrop" data-toggle="dropdown" style="margin-left: -35px; margin-top:.5rem;">
+
+								Action
+
+							  </a> 
+
+
+							  <div class="dropdown-menu" style="margin-right:34px">
+
+								<a class="dropdown-item" onclick="exportToPdf('<%ID%>');" href="#">
+									<img src="<%hosturl%>Custom/Images/PDF_file_icon.svg.png" 
+									class="img-fluid rounded text-white"  alt="Export to PDF" 
+									style="height: 25px; width: 24px;margin-left: -6px;"/><label style="margin-left:1.1rem;">Export PDF</label>
+								</a>
+								<a onclick="exportToWord('<%ID%>')" class="dropdown-item" href="#">
+									<img src="<%hosturl%>Custom/Images/microsoft-word.png" 
+									class="img-fluid rounded text-white"  alt="Export to Word" 
+									style="height: 29px;margin-left: -9px;"/><label style="margin-left:1rem;">Export Word</label>
+								</a>
+								<a class="dropdown-item" href="<%hosturl%>im/runreport?selection=&currentReportName&issues=<%ID%>">
+									<img src="<%hosturl%>Custom/Images/rerun.png" 
+									class="img-fluid rounded text-white"  alt="Re-Run Prport" 
+									style="height: 30px;margin-left: -9px;"/><label style=" margin-left:1rem;">Re-Run</label>
+								</a>
+
+						  </div>
+							</li>
+						</div>
+					</ul>
+				</div>
+		</nav>
+        <br>
+	    <br>
+		<div id ="doc"><!-- for word export -->
+		<div class="wordSection1"><!-- for word export -->
+		<div class="ml-5 col-md-12 col-lg-11 wrapper center-block" > <!-- row body -->
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				<div class="panel panel-default">
+					<div class="panel-heading active" role="tab" id="headingOne">
+					  <h4 class="panel-title">
+						<a role="button" data-toggle="collapse" id="docOverviewPanel" data-parent="#accordion" href="#" aria-expanded="true" aria-controls="collapseOne">
+						  Document Overview
+						</a>
+					  </h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingOne">
+					<div class="panel-body">
+
+					<!-- Overview table -->	
+					<table  class="table  border border-dark" id ="tdID">
+
+						<tbody>	
+							<tr class="text-center">
+
+								<th style="border: 1px solid black;" colspan="6">
+
+									Verification Summary Report for <a id="documentLink" href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%ID%>" target="_blank"><%ID%></a>
+								
+								</th>
+							</tr>
+							<tr class="tableID">
+
+								<th colspan="1">Project</th>
+
+								<td colspan="5"><%Project%></td>
+							</tr>
+							<tr>
+								<th>Document name</th>
+								<td ><%Short Title%></td>
+								<th>Document State </th>
+
+								<td><%State%></td>
+
+								<th >Doc Owner</th>
+
+								<td><%Created By%></td>
+
+							</tr>
+
+							<tr>
+								<th >Reviewed By</th>
+
+								<td ><%Modified By%></td>
+								<th >Approved By</th>
+
+								<td	colspan="3"> Administrator</td>
+
+							</tr>
+							<tr>
+								<th >Published on</th>
+
+								<td ><%currentdate%></td>
+
+								<th>Rev No</th>
+
+								<td colspan="3">1.1</td>
+
+							</tr>
+
+						</tbody>
+					</table>	
+					</div>
+				</div>
+			   </div>
+						
+				  </div>
+					<div class="panel panel-default mt-5">
+					<div class="panel-heading" role="tab" id="headingTwo">
+					  <h4 class="panel-title">
+					  
+						<a class="collapsed " role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+						  Requirements
+						</a>
+			
+					  </h4>
+					</div>
+					<div id="collapseTwo" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingTwo">
+					<div class="panel-body">
+					<table class="table "  id="reqTagTable">
+									
+						<thead class="bg-dark">
+													
+							<tr class="text-center text-white" >
+								<th>
+										
+									Requirement
+								</th>
+								
+								<th nowrap>
+										
+								Sample Size
+								</th>
+								<th>
+										
+									Acceptance Criteria
+								</th>
+										
+							</tr>
+							
+						</thead>
+						 
+						<tbody> 
+					  <script>					  
+					  <%beginrelationshipsdetail  Query[ ( (walk[<%builtin Contains%>] <%ID%>))] %><!-- go to contents( Protocols) -->
+						  if("<%Relationship State%>" === "Approved" && ("<%Relationship Category%>" !="Heading")&&("<%Relationship Category%>" !="Comment")){ // Filter protocol based on state
+								<%beginrelationshipsdetailL2 Verifies%>  //go to LLR								
+								if(!arrLLR.includes("<%RelationshipL2 ID%>")){
+									arrLLR.push("<%RelationshipL2 ID%>");
+									if("<%RelationshipL2 State%>" === "Approved" || "<%RelationshipL2 State%>" === "Agreed"){ //Filter LLR based on state
+										accCriteria = '<%RelationshipL2 Acceptance Criteria%>';
+										sampleSize = '<%RelationshipL2 Sample Size%>';
+										reqTagTb1 = '<%RelationshipL2 Requirement Tag%>';
+										shortTitleTb1 = '<%RelationshipL2 Short Title%>';
+										if(accCriteria ==='' || accCriteria === '&nbsp;'){
+											accCriteria = '--No Data--';
+										}
+										if(sampleSize ==='' || sampleSize === '&nbsp;'){
+											sampleSize = '--No Data--';
+										}
+										if( ((reqTagTb1 ==='' || reqTagTb1 === '&nbsp;')&&(shortTitleTb1 ==='' || shortTitleTb1 === '&nbsp;')) === false){
+										  reqTagTb1 +=' : ';
+										}
+										else{
+										  reqTagTb1 =  '--No Data--';
+										}
+										document.write('<tr><td nowrap >'+reqTagTb1+shortTitleTb1+'</td><td >'+sampleSize+'</td><td>'+accCriteria+'</td></tr>');
+										accCriteria = '';
+										sampleSize = '';
+										reqTagTb1 = '';
+										shortTitleTb1 = '';
+										noRowTb1 = false;
+									  }
+								}
+								<%endrelationshipsdetailL2%>  
+							}
+						 <%endrelationshipsdetail%> 
+						if(noRowTb1){
+								document.write('<tr class="noData"><td colspan="3">--No Data--</td></tr>');										
+							}
+						 </script>
+					 	</tbody>
+					</table>
+				 </div>
+				</div>
+				</div>
+				<br>
+				 <div class="panel panel-default mt-3">
+					<div class="panel-heading" role="tab" id="headingThree">
+					  <h4 class="panel-title">
+					
+						<a class="collapsed " role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+						  Trace Details
+						</a>
+							
+					
+					  </h4>
+					</div>
+					<div id="collapseThree" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingThree">
+					<div class="panel-body">
+				
+					<table class="table "  id="detailTable">
+					
+					
+						<thead class="bg-dark">
+						
+							<tr class="text-center text-white" >
+								<th>
+										
+									Requirement
+								</th>
+								
+								<th>
+										
+								Test Protocol
+								</th>
+								<th>
+										
+									Test Report
+								</th>
+								<th>
+										
+									Test Result
+								</th>
+								<th width="20%">
+										
+									Output
+								</th>
+											
+							</tr>
+							
+						</thead>
+						 
+						<tbody>
+						
+						
+						<script>
+						<%beginrelationshipsdetail  Query[ ( (walk[<%builtin Contains%>] <%ID%>))] %><!-- go to contents( Protocols) -->
+						<%beginrelationshipsection none%>   // No Protocols
+						document.write('<tr class="noData"><td colspan="5">--No Data--</td></tr>');									
+					    <%endrelationshipsection%>
+						protocalsTotalTb2 ++;
+						if("<%Relationship State%>" === "Approved" &&  ("<%Relationship Category%>" !="Heading") &&("<%Relationship Category%>" !="Comment")){ // Filter protocol based on state
+							<%beginrelationshipsdetailL2 Verifies%>  // go to LLR
+                            llrCountTotalTb2 ++;
+							if("<%RelationshipL2 State%>" === "Approved" || "<%RelationshipL2 State%>" === "Agreed") //Filter LLR based on state 
+							{
+								shortTitleTb2 = "<%RelationshipL2 Short Title%>" ;
+								reqTagTb2 = "<%RelationshipL2 Requirement Tag %>";
+								if( ((reqTagTb2 ==='' || reqTagTb2 === '&nbsp;')&&(shortTitleTb2 ==='' || shortTitleTb2 === '&nbsp;')) === false)
+									{
+									  reqTagTb2 +=' : ';
+									}
+								
+								llrIds += reqTagTb2+shortTitleTb2+'<br class="llrDiv" />' ;
+							}
+							else{
+								llrCountNonApprovedTb2 ++;
+							}
+
+							shortTitleTb2 = '';
+							reqTagTb2 ='';					
+							//					
+							<%beginrelationshipsection none%>   // No LLR
+							llrIds ='--No Relation--';															
+							<%endrelationshipsection%>
+					
+							<%endrelationshipsdetailL2%>  // LLR closed
+							if( (llrCountNonApprovedTb2 > 0) && (llrCountNonApprovedTb2 == llrCountTotalTb2)){
+							
+							llrIds = '--No Data--';
+							}
+							document.write('<tr><td nowrap id ="llr<%Relationship ID%>" >'+llrIds+'</td><td id = "<%Relationship ID%>"><%Relationship Text%> </td> ');
+							llrIds = '';
+							llrCountNonApprovedTb2 = 0;
+							llrCountTotalTb2 = 0;
+							<%beginrelationshipsdetailL2 Verified By%>  //go to Reports
+								
+								testReportCount ++ ;
+								testReult = '<%RelationshipL2 Result%>';
+								
+								if(testReult ==='' || testReult ==='&nbsp;'  )
+								{
+								testReult = '--No Data--';
+								}
+								
+								if(testReportCount >1){
+								
+								document.write('<tr> <td id ="<%RelationshipL2 ID%>" ><%RelationshipL2 Text%></td> <td  id ="result<%RelationshipL2 ID%>" >'+testReult+'</td>');
+								}else
+								{
+								  document.write('<td id ="<%RelationshipL2 ID%>" ><%RelationshipL2 Text%></td> <td   id ="result<%RelationshipL2 ID%>" >'+testReult+'</td>');
+								}
+								
+								testReult = '';
+								<%beginrelationshipsection none%>   // No Reports
+								 document.write('<td>--No Relation--</td><td>--No Relation--</td><td>--No Relation--</td></tr>');															
+								<%endrelationshipsection%>
+								<%beginrelationshipsdetailL3 Specified By%>  //go to Outputs
+									outputCount ++ ;
+									if(outputCount >1){
+									document.write(`<tr> <td><%RelationshipL3 Text%></td></tr>`);
+									}else{
+									  document.write(`<td><%RelationshipL3 Text%></td></tr>`);
+									}
+								<%beginrelationshipsection none%>   //No Outputs
+								 document.write('<td>--No Relation--</td></tr>');															
+								<%endrelationshipsection%>
+								<%endrelationshipsdetailL3%>	
+							testReportCount += outputCount ;
+							if(outputCount > 0){
+							testReportCount -- ;
+							}
+							if(outputCount > 1){
+							$("#<%RelationshipL2 ID%>").attr("rowspan",outputCount);
+							$("#result<%RelationshipL2 ID%>").attr("rowspan",outputCount);
+							}
+							outputCount = 0;
+							<%endrelationshipsdetailL2%>   //Reports closed
+							if(testReportCount >1) {
+							$("#<%Relationship ID%>").attr("rowspan",testReportCount);
+							$("#llr<%Relationship ID%>").attr("rowspan",testReportCount);
+							
+							}
+							testReportCount = 0;
+						}
+						else{
+						nonApprovedProtocolsTb2 ++
+						}
+					   <%endrelationshipsdetail%> <!-- Protocols closed --> 
+					   if( (protocalsTotalTb2 >0) && (nonApprovedProtocolsTb2 == protocalsTotalTb2)){
+					   document.write('<tr class="noData"><td colspan="5">--No Data--</td></tr>');									
+					   }
+					</script>		
+					</tbody>
+					
+					</table>
+					</div>
+					</div>
+					</div>
+
+			</div>	
+		</div> <!-- container closed -->
+			
+	</div>
+	</div>
+
+    <div class="footer"> 
+
+	<hr>	
+		<div class="text-center py-3">
+			&reportfooter
+			<p><%currentdate%></p>
+		</div>
+	
+	</div>
+			
+</body>
+<%enddetail%>
+</html>
+
+
+
+

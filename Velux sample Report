@@ -1,0 +1,1261 @@
+<html>
+	<head>
+		<title>VELUX Verification Plan</title>
+		<link rel="shortcut icon" href="<%hosturl%>Velux/reports/images/velux.ico" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script> var jqeBsTooltip = $.fn.tooltip.noConflict(); $.fn.tlp = jqeBsTooltip; </script>
+		<!-- <script type="text/javascript" src="<%hosturl%>Velux/reports/files/excelexportjs.js"></script> -->
+		
+		
+		
+		<style>
+			.blue_font{color:#3366CC;}
+			.share_link{color:#006400}
+			.text_center{text-align:center;}
+			.section1 {font-family: Arial, Helvetica, sans-serif; font-size: 9pt; background-color: #F8F3F7;}
+			.result_header {background: #C0C0C0;}
+			.field_headings {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000000; font-weight: bold;}
+			.details {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000000;}
+			.pass_row {background: #ccffcc;}
+			.fail_row {background: #FFEBEB;}
+			.other_row {background: #89CFF0;}
+			.nodata_row {background: #f8f7f3;}
+			.outer_div {display: table; position:fixed; width: 100%; table-layout: fixed;margin-bottom: 20px;}
+			.inner_div {display: table-cell;padding: 4px 6px;width: 2%;margin-bottom: 0;vertical-align: middle;}
+			.header {
+				background-color: #ffffff;
+				height: 100px;
+				width: 100%;
+				position: fixed;
+				top: 0;
+				z-index: 9999;
+			}
+			.footer {
+			   left: 0;
+			   background-color: #ffffff;
+			   bottom: 5px;
+			   width:100%;
+			   top: 50%;
+			   height: 60px;
+			   position:relative;			   
+			}
+			.pageContents {
+				position: relative;
+				top: 20px;
+				margin-bottom: 70px;
+				left: 0;
+				right: 0;
+			}			
+			body {
+				margin: 0;
+				padding-top: 80px;
+			}
+			.hide {display: none;}
+			.full_line {height:2px; width:100%; color: #000000; background:#000000;}
+			.wrapper {width:90%;}
+			tr:hover {background-color:#f5f5f5;}
+			
+			.panel-body .ExAll {
+			  background: none!important;
+			  border: none;
+			  padding: 0!important;
+			  font-family: arial, sans-serif;
+			  color: #069;
+			  text-decoration: underline;
+			  cursor: pointer;
+			}
+			
+			@media(max-width:992px){.wrapper{width:100%;}}
+			.panel-heading {padding: 0;border:0;}
+			.panel-title>a, .panel-title>a:active{
+                display:block;
+                padding:15px;
+				color:#555;
+				font-size:16px;
+				font-weight:bold;
+                text-transform:uppercase;
+                letter-spacing:1px;
+				word-spacing:3px;
+                text-decoration:none;
+			}
+			.panel-heading  a:before {
+				font-family: 'Glyphicons Halflings';
+				content: "\e114";
+				float: right;
+				transition: all 0.5s;
+			}
+			.panel-heading.active a:before {
+				-webkit-transform: rotate(180deg);
+				-moz-transform: rotate(180deg);
+				transform: rotate(180deg);
+			}
+			.button_print {
+			display:inline-block;float:left;background-color:#C0C0C0;color:black;border: 2px solid #008CBA;text-align:center;display:inline-block;font-size:18px;width:150px;height:30px;border-radius:2px;margin: 4px 2px;transition-duration: 0.4s;transition-duration: 0.4s;cursor: pointer;
+			}
+			.button_print:hover {
+				background-color: #555555;
+				color: white;
+			}
+
+			
+			/*Below css is applied for Test Requisition Required Performance*/
+			
+			.tdtable tr:first-child{
+				display: none;
+			}
+			
+			.tdtable tr td{
+				border: none !important;
+				zoom: 1;
+			}
+			
+			.tdtable td:nth-of-type(1){
+				padding-right: 10px;
+			}
+			
+			#trrp table{
+				border: 0;
+				display: block;
+			}
+			
+			@media print{
+				#printMe {
+					display: none;
+				}
+				/*.tdtable tr, td{
+						border: none;
+				}
+				#trrp table{
+					border: 0;
+					display: block;
+				}*/
+			}
+			
+		</style>	
+	</head>
+	<%begindetail%>
+	<body>
+		<div class="header" id="pageHeader">
+			<div class="inner_div">
+				<a href="http://velux.com" data-toggle="tooltip" data-placement="right" title="&#169 VELUX" target="_blank"><img src="<%hosturl%>images/logos/logo_velux.png"/></a>
+			</div>
+			<div class="inner_div">
+				<h1 class="blue_font" style="text-align: center; font-size: 20px; font-weight: bold;">Verification Plan <a id="copy_icon" href="#" data-toggle="tooltip" data-placement="right" title="Share this report via Mail" onclick="triggerOutlook();"><img src="<%hosturl%>Velux/reports/images/share.png" height="25px" width="25px"/></a></h1>
+				
+			</div>
+			<div class="inner_div">
+				<button id="accordionToggleButton" class="button_print" data-toggle="tooltip" data-placement="left" data-original-title="Collapse All Sections" style="float: right;">Collapse All</button>
+			</div>
+			<hr style="background: black;height: 5px;margin-top: auto;">
+		</div>
+		
+		<div class="pageContents">
+		<div class="wrapper center-block">
+			<div class="panel panel-default">
+				<div class="panel-heading active" role="tab" id="headingOne">
+					<h4 class="panel-title">
+						<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+							<h4 class="blue_font" style="font-weight:bold;">Test Objective(<%<%builtin ID%>%>) Overview</h4>
+						</a>
+					</h4>
+				</div>
+				<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+				  <div class="panel-body">
+					<table width="100%" class="table table-bordered">
+						<tr>
+							<td colspan="2"><span class="field_headings">Summary:</span> <span class="details"><%Summary%></span></td>
+						</tr>
+						<tr>
+							<td width="50%"><span class="field_headings">Assigned User:</span> <span class="details"><%Assigned User%></span></td> 
+							<td width="50%"><span class="field_headings">Project:</span> <span class="details"><%Project%></span></td>
+						</tr>
+						<tr>
+							<td width="50%"><span class="field_headings">Assigned Group:</span> <span class="details"><%Assigned Group%></span></td> 
+							<td width="50%"><span class="field_headings">State:</span> <span class="details"><%State%></span></td>
+						</tr>
+						<tr>
+							<td width="50%"><span class="field_headings">Test Objective Phase:</span> <span class="details"><%Test Objective Phase%></span></td> 
+							<td width="50%"><span class="field_headings">Priority:</span> <span class="details"><%Priority%></span></td>
+						</tr>
+					</table>
+				  </div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="wrapper center-block">
+			<div class="panel panel-default">
+				<div class="panel-heading active" role="tab" id="groupHeading1">
+					<h4 class="panel-title">
+						<a role="button" data-toggle="collapse" data-parent="#accordion" href="#groupCollapse1" aria-expanded="true" aria-controls="groupCollapse1">
+							<h4 class="blue_font" style="font-weight: bold;">Verification Plan Overview</h4>
+						</a>
+					</h4>
+				</div>
+				<div id="groupCollapse1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="groupHeading1">
+				  <div class="panel-body">
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingTwo">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+										<h4 class="blue_font">Test Cases That Are Traced To Expectable Requirements</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+							  <div class="panel-body">
+								<table id="expectableReqTable" width="100%" class="table table-bordered">
+									<tr class="result_header">
+										<th class="field_headings text_center">ID</th>
+										<th class="field_headings text_center">State</th>
+										<th class="field_headings text_center">Text</th>
+										<th class="field_headings text_center">Requirement Required Performance</th>
+										<th class="field_headings text_center">Robustness Evaluation</th>
+									</tr>
+									<%beginrelationshipsdetail Tests%>
+										<%beginrelationshipsdetailL2 Verifies%>
+											<script>
+												var category = "<%RelationshipL2 Category%>";
+												if(category === "Expectable"){
+													$("#expectableReqTable tr:last").after('<tr><td  class="details"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></td><td class="details"><%Relationship State%></td><td class="details"><%Relationship Text%></td><td class="details"><%RelationshipL2 Required Performance%></td><td class="details text_center"><%RelationshipL2 Robustness Evaluation%></td></tr>');
+												}
+											</script>
+										<%endrelationshipsdetailL2%>
+									<%endrelationshipsdetail%>
+								</table>
+							  </div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingThree">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+										<h4 class="blue_font">Test Cases That Are Traced To Mandatory Requirements</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
+							  <div class="panel-body">
+								<table id="mandatoryReqTable" width="100%" class="table table-bordered">
+									<tr class="result_header">
+										<th class="field_headings text_center">ID</th>
+										<th class="field_headings text_center">State</th>
+										<th class="field_headings text_center">Text</th>
+										<th class="field_headings text_center">Requirement Required Performance</th>
+										<th class="field_headings text_center">Robustness Evaluation</th>
+									</tr>
+									<%beginrelationshipsdetail Tests%>
+										<%beginrelationshipsdetailL2 Verifies%>
+											<script>
+												var category = "<%RelationshipL2 Category%>";
+												var dopDoc = "<%RelationshipL2 DoP/DoC%>"
+												if(category === "Mandatory" && (dopDoc === "DoP" || dopDoc === "DoC")){
+													$("#mandatoryReqTable tr:last").after('<tr><td class="details"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></td><td class="details"><%Relationship State%></td><td class="details"><%Relationship Text%></td><td class="details"><%RelationshipL2 Required Performance%></td><td class="details text_center"><%RelationshipL2 Robustness Evaluation%></td></tr>');
+												}
+											</script>
+										<%endrelationshipsdetailL2%>
+									<%endrelationshipsdetail%>
+								</table>
+							  </div>
+							</div>
+						</div>
+					</div>
+				  </div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="wrapper center-block">
+			<div class="panel panel-default">
+				<div class="panel-heading active" role="tab" id="groupHeading2">
+					<h4 class="panel-title">
+						<a role="button" data-toggle="collapse" data-parent="#accordion" href="#groupCollapse2" aria-expanded="true" aria-controls="groupCollapse2">
+							<h4 class="blue_font" style="font-weight: bold;">DEVELOPMENT TESTS & RESULTS</h4>
+						</a>
+					</h4>
+				</div>
+				<div id="groupCollapse2" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="groupHeading2">
+				  <div class="panel-body">
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingFour">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+										<h4 class="blue_font">All Completed Test Requisitions [ Product Maturity is Not 0-Serie ]</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseFour" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingFour">
+							  <div class="panel-body">
+								<!--<button class="print" id ="P_ReqTable3">Print</button>-->
+								<div id="mydiv_y" class="table-responsive">
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="ExAll" id="exAllReqTable3" data-toggle="tooltip" data-placement="top" title="Expand All"><b>Expand All</button>
+								<span>||</b></span>
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="CoAll" id="coAllReqTable3" data-toggle="tooltip" data-placement="top" title="Collapse All"><b>Collapse All</b></button>
+								<table id="ReqTable3" width="100%" class="table table-bordered">
+									<thead>
+										<tr class="result_header">
+											<th class="field_headings text_center col-md-1">ID</th>
+											<th class="field_headings text_center">Type</th>
+											<th class="field_headings text_center">State</th>
+											<th class="field_headings text_center">Text/Summary</th>
+											<th class="field_headings text_center">Requirement Required Performance</th>
+											<th class="field_headings text_center">Test Requisition Required Performance</th>
+											<th class="field_headings text_center">Product Maturity</th>
+											<th class="field_headings text_center">Project Stage</th>
+											<th class="field_headings text_center">Result</th>
+											<th class="field_headings text_center">Tester Comment</th>
+											<th class="field_headings text_center">Test Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<%beginrelationshipsdetail Requisitions for Test Objective%>
+											<script>
+												var productMaturity = "<%Relationship Product Maturity%>";
+												var state = "<%Relationship State%>";												
+												var testStatus = "<%Relationship TR Test Status%>";	
+												var imgName;											
+												var	trResult="";											
+												if(testStatus == "TR Failled" ){
+													imgName = "tr_failled";
+													trResult="Failed";
+												}
+												else if(testStatus == "TR Other"){
+													imgName = "tr_other";
+													trResult="Other";
+												}
+												else if(testStatus == "TR Success"){
+													imgName = "tr_success";
+													trResult="Passed";
+												}
+												else{
+													imgName = "tr_pending";
+													trResult="Pending";
+												}
+												if(productMaturity !== "0-Serie" && state === "Completed"){
+													$("#ReqTable3 tbody:last").after('<tbody class="labels"><tr><td id="mytd" class="details"><label for="TestRequisition"><img src="<%hosturl%>Velux/reports/images/book write.gif" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></label><input Style="margin-left:3px;" type="checkbox" name="TestRequisition" id="<%Relationship ID%>"></td><td  class="details"><%Relationship Type%></td><td  class="details"><%Relationship State%></td><td  class="details"><%Relationship Summary%></td><td  class="details text_center">N/A</td><td  class="details" id="trrp"><%Relationship Test Requisition Required Performance%></td><td  class="details"><%Relationship Product Maturity%></td><td  class="details"><%Relationship Project Stage%></td><td  class="details">'+trResult+'</td><td  class="details text_center">N/A</td><td  class="details"><center><img src="<%hosturl%>images/'+imgName+'.png" /></center></td></tr></tbody>');
+												}
+											</script>
+											<%beginrelationshipsdetailL2 Test Sessions for Requisition%>
+												<script>
+													var flag =false;
+													var asOfDate = "<%Relationship Tests As Of Date%>";
+												</script>
+												<tbody class="TSFORTR<%Relationship ID%> hide">
+													<tr>
+														<td  class="details">
+															<img src="<%hosturl%>Velux/reports/images/t_test_session.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 ID%>" target="_blank"><%RelationshipL2 ID%></a>
+															<input style="margin-left:5px;" type="checkbox" name="TestSession" id="<%RelationshipL2 ID%>">
+														</td>
+														<td class="details"><%RelationshipL2 Type%></td>
+														<td class="details"><%RelationshipL2 State%></td>
+														<td class="details"><%RelationshipL2 Summary%></td>
+														<td class="details text_center" colspan = "7">N/A</td>
+														
+														<!--
+														<td class="details text_center">N/A</td>
+														<td class="details text_center">N/A</td>
+														<td class="details text_center">N/A</td>
+														<td class="details text_center">N/A</td>
+														<td class="details text_center">N/A</td>
+														<td class="details text_center">N/A</td>
+														-->
+													</tr>
+												</tbody>
+												<%begintestresultdetailL2 verdict=&combinedverdictfilter%>
+													<tbody class="TCFORTS<%RelationshipL2 ID%> hide">
+														<script>
+															flag = true;
+														    var verdictResult = "<%testresult Verdict %>";
+															var rowClass;
+															var imgName;
+															
+															if(verdictResult == "Passed" || verdictResult == "Passed With Deviation"){
+																rowClass = "pass_row";
+																imgName = "tc_success";
+															} else if(verdictResult == "Failed"){
+																rowClass = "fail_row";
+																imgName = "tc_failled";
+															} else {
+																rowClass = "other_row";
+																imgName = "tc_other";
+															}
+															<%beginrelationshipsdetailL3 Query[(field[ID]=<%testresult Test ID%>)]%>
+																var ctype = "<%RelationshipL3 Type%>";
+																var cState = "<%RelationshipL3 State%>";
+																var text = "<%RelationshipL3 Text%>";
+																var rrp = "<%RelationshipL3 Expected Results%>"
+															<%endrelationshipsdetailL3%>
+															var rowString = '<tr class="' + rowClass + '"><td  class="details"><img src="<%hosturl%>Velux/reports/images/t_test.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%testresult Test ID%>" target="_blank"><%testresult Test ID%></a></td><td  class="details">' + ctype + '</td><td  class="details">' + cState + '</td><td  class="details">' + text + '</td><td  class="details text_center">' + rrp + '</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details">'+verdictResult+'</td><td  class="details"><%testresult Annotation%></td><td  class="details"><center><img src="<%hosturl%>Velux/reports/images/'+imgName+'.png" /></center></td></tr>';
+															$(".TCFORTS<%RelationshipL2 ID%>").append(rowString);
+														</script>
+													</tbody>
+												<%endtestresultdetailL2%>
+												    <script>
+														var tsID = "<%RelationshipL2 ID%>";
+														if(!flag){
+															var rowStr = '<tbody class="TCFORTS'+tsID+' hide"><tr class="' + 'nodata_row' + '"><td  class="details text_center" colspan = "11">NO DATA FOUND!!</td></tr></tbody>';
+															document.write(rowStr);
+														}
+													</script>
+											<%endrelationshipsdetailL2%>
+										<%endrelationshipsdetail%>
+									</tbody>
+								</table>
+								</div>
+							  </div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingFive">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+										<h4 class="blue_font">All Requisionts in testing [ Product Maturity is Not 0 Serie ]</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseFive" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingFive">
+							  <div class="panel-body">
+							  <div class="table-responsive">
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="ExAll" id="exAllReqTable4" data-toggle="tooltip" data-placement="top" title="Expand All"><b>Expand All</button>
+								<span>||</b></span>
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="CoAll" id="coAllReqTable4" data-toggle="tooltip" data-placement="top" title="Collapse All"><b>Collapse All</b></button>
+								<table id="ReqTable4" width="100%" class="table table-bordered">
+									<thead>
+										<tr class="result_header">
+											<th  class="field_headings text_center col-md-1">ID</th>
+											<th  class="field_headings text_center">Type</th>
+											<th  class="field_headings text_center">State</th>
+											<th  class="field_headings text_center">Text/Summary</th>
+											<th  class="field_headings text_center">Requirement Required Performance</th>
+											<th  class="field_headings text_center">Test Requisition Required Performance</th>
+											<th  class="field_headings text_center">Product Maturity</th>
+											<th  class="field_headings text_center">Project Stage</th>
+											<th  class="field_headings text_center">Required By</th>
+											<th  class="field_headings text_center">Result</th>
+											<th  class="field_headings text_center">Tester Comment</th>
+											<th  class="field_headings text_center">Test Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<%beginrelationshipsdetail Requisitions for Test Objective%>
+											<script>
+												var productMaturity = "<%Relationship Product Maturity%>";
+												var state = "<%Relationship State%>";
+												var testStatus = "<%Relationship TR Test Status%>";	
+												var imgName;											
+												var	trResult="";											
+												if(testStatus == "TR Failled" ){
+													imgName = "tr_failled";
+													trResult="Failed";
+												}
+												else if(testStatus == "TR Other"){
+													imgName = "tr_other";
+													trResult="Other";
+												}
+												else if(testStatus == "TR Success"){
+													imgName = "tr_success";
+													trResult="Passed";
+												}
+												else{
+													imgName = "tr_pending";
+													trResult="Pending";
+												}
+												if(productMaturity !== "0-Serie" && state === "In Testing"){
+													$("#ReqTable4 tbody:last").after('<tbody class="labels"><tr class="TRrow"><td class="details"><label for="TestRequisition"><img src="<%hosturl%>Velux/reports/images/book write.gif" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></label><input Style="margin-left:3px;" type="checkbox" name="TestRequisition" id="<%Relationship ID%>"></td><td  class="details"><%Relationship Type%></td><td  class="details"><%Relationship State%></td><td  class="details"><%Relationship Summary%></td><td  class="details text_center">N/A</td><td  class="details" id="trrp"><%Relationship Test Requisition Required Performance%></td><td  class="details"><%Relationship Product Maturity%></td><td  class="details"><%Relationship Project Stage%></td><td class="details"><%Relationship Required By%></td><td  class="details">'+trResult+'</td><td  class="details text_center">N/A</td><td  class="details"><center><img src="<%hosturl%>images/'+imgName+'.png" /></center></td></tr></tbody>');
+												}
+											</script>
+											<%beginrelationshipsdetailL2 Test Sessions for Requisition%>
+												<script>
+													var flag =false;
+													var asOfDate = "<%Relationship Tests As Of Date%>";
+												</script>
+												<tbody class="TSFORTR<%Relationship ID%> hide">
+													<tr>
+														<td  class="details">
+															<img src="<%hosturl%>Velux/reports/images/t_test_session.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 ID%>" target="_blank"><%RelationshipL2 ID%></a>
+															<input style="margin-left:5px;" type="checkbox" name="TestSession" id="<%RelationshipL2 ID%>" />
+														</td>
+														<td  class="details"><%RelationshipL2 Type%></td>
+														<td  class="details"><%RelationshipL2 State%></td>
+														<td  class="details"><%RelationshipL2 Summary%></td>
+														<td class="details text_center" colspan = "7">N/A</td>
+													</tr>
+												</tbody>
+												<%begintestresultdetailL2 verdict=&combinedverdictfilter%>
+													<tbody class="TCFORTS<%RelationshipL2 ID%> hide">
+														<script>
+															flag = true;
+															var verdictResult = "<%testresult Verdict %>";
+															var rowClass;
+															var imgName;
+															
+															if(verdictResult == "Passed" || verdictResult == "Passed With Deviation"){
+																rowClass = "pass_row";
+																imgName = "tc_success";
+															} else if(verdictResult == "Failed"){
+																rowClass = "fail_row";
+																imgName = "tc_failled";
+															} else {
+																rowClass = "other_row";
+																imgName = "tc_other";
+															}
+															<%beginrelationshipsdetailL3 Query[(field[ID]=<%testresult Test ID%>)]%>
+																var ctype = "<%RelationshipL3 Type%>";
+																var cState = "<%RelationshipL3 State%>";
+																var text = "<%RelationshipL3 Text%>";
+																var rrp = "<%RelationshipL3 Expected Results%>"
+															<%endrelationshipsdetailL3%>
+															var rowStr = '<tr class="' + rowClass + '"><td  class="details"><img src="<%hosturl%>Velux/reports/images/t_test.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%testresult Test ID%>" target="_blank"><%testresult Test ID%></a></td><td  class="details">' + ctype + '</td><td  class="details">' + cState + '</td><td  class="details">' + text + '</td><td  class="details text_center">' + rrp + '</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details">'+verdictResult+'</td><td  class="details"><%testresult Annotation%></td><td  class="details"><center><img src="<%hosturl%>Velux/reports/images/'+imgName+'.png" /></center></td></tr>';
+															$(".TCFORTS<%RelationshipL2 ID%>").append(rowStr);
+														</script>
+													</tbody>
+												<%endtestresultdetailL2%>
+													<script>
+														var tsID = "<%RelationshipL2 ID%>";
+														if(!flag){
+															var rowStr = '<tbody class="TCFORTS'+tsID+' hide"><tr class="' + 'nodata_row' + '"><td  class="details text_center" colspan = "11">NO DATA FOUND!!</td></tr></tbody>';
+															document.write(rowStr);
+														}
+													</script>
+											<%endrelationshipsdetailL2%>
+										<%endrelationshipsdetail%>
+									</tbody>
+								</table>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingSix">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+										<h4 class="blue_font">All Planned Test Requisitions [ Product Maturity is Not 0-Serie ]</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseSix" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingSix">
+							  <div class="panel-body">
+							  <div class="table-responsive">
+								<table id="reqTab5" width="100%" class="table table-bordered">
+									<thead>
+										<tr class="result_header">
+											<th class="field_headings text_center">ID</th>
+											<th class="field_headings text_center">State</th>
+											<th  class="field_headings text_center">Summary</th>
+											<!--<th  class="field_headings text_center">Requirement Required Performance</th>-->
+											<th  class="field_headings text_center">Test Requisition Required Performance</th>
+											<th  class="field_headings text_center">Product Maturity</th>
+											<th  class="field_headings text_center">Project Stage</th>
+											<th  class="field_headings text_center">Required By</th>
+										</tr>
+									</thead>
+									<tbody>
+									<%beginrelationshipsdetail Requisitions for Test Objective%>
+										<script>
+											var productMaturity = "<%Relationship Product Maturity%>";
+											var state = "<%Relationship State%>";
+												if(productMaturity !== "0-Serie" && (state === "Draft" || state === "Submit" || state === "Accepted" || state === "Rejected")){
+													$("#reqTab5 tbody:last").after('<tbody><tr><td  class="details"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></td><td class="details"><%Relationship State%></td><td class="details"><%Relationship Summary%></td><td  class="details" id="trrp"><%Relationship Test Requisition Required Performance%></td><td class="details">' + productMaturity + '</td><td class="details"><%Relationship Project Stage%></td><td class="details"><%Relationship Required By%></td></tr></tbody>');
+												}
+										</script>
+									<%endrelationshipsdetail%>
+									</tbody>
+								</table>
+								</div>
+							  </div>
+							</div>
+						</div>
+					</div>
+				  </div>
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		<div class="wrapper center-block">
+			<div class="panel panel-default">
+				<div class="panel-heading active" role="tab" id="groupHeading3">
+					<h4 class="panel-title">
+						<a role="button" data-toggle="collapse" data-parent="#accordion" href="#groupCollapse3" aria-expanded="true" aria-controls="groupCollapse3">
+							<h4 class="blue_font" style="font-weight: bold;">Verifying Tests & Results</h4>
+						</a>
+					</h4>
+				</div>
+				<div id="groupCollapse3" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="groupHeading3">
+				  <div class="panel-body">
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingSeven">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSeven" aria-expanded="true" aria-controls="collapseSeven">
+										<h4 class="blue_font">All Completed Test Requisitions [ Product Maturity is 0-Serie ]</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseSeven" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingSeven">
+							  <div class="panel-body">
+							  <div class="table-responsive">
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="ExAll" id="exAllReqTable6" data-toggle="tooltip" data-placement="top" title="Expand All"><b>Expand All</button>
+								<span>||</b></span>
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="CoAll" id="coAllReqTable6" data-toggle="tooltip" data-placement="top" title="Collapse All"><b>Collapse All</b></button>
+								<table id="ReqTable6" width="100%" class="table table-bordered">
+									<thead>
+										<tr class="result_header">
+											<th class="field_headings text_center col-md-1">ID</th>
+											<th class="field_headings text_center">Type</th>
+											<th class="field_headings text_center">State</th>
+											<th class="field_headings text_center">Text/Summary</th>
+											<th class="field_headings text_center">Requirement Required Performance</th>
+											<th class="field_headings text_center">Test Requisition Required Performance</th>
+											<th class="field_headings text_center">Product Maturity</th>
+											<th class="field_headings text_center">Project Stage</th>
+											<th class="field_headings text_center">Result</th>
+											<th class="field_headings text_center">Tester Comment</th>
+											<th class="field_headings text_center">Test Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<%beginrelationshipsdetail Requisitions for Test Objective%>
+											<script>
+												var productMaturity = "<%Relationship Product Maturity%>";
+												var state = "<%Relationship State%>";
+												var testStatus = "<%Relationship TR Test Status%>";	
+												var imgName;											
+												var	trResult="";											
+												if(testStatus == "TR Failled" ){
+													imgName = "tr_failled";
+													trResult="Failed";
+												}
+												else if(testStatus == "TR Other"){
+													imgName = "tr_other";
+													trResult="Other";
+												}
+												else if(testStatus == "TR Success"){
+													imgName = "tr_success";
+													trResult="Passed";
+												}
+												else{
+													imgName = "tr_pending";
+													trResult="Pending";
+												}
+												if(productMaturity === "0-Serie" && state === "Completed"){
+													$("#ReqTable6 tbody:last").after('<tbody class="labels"><tr><td class="details"><label for="TestRequisition"><img src="<%hosturl%>Velux/reports/images/book write.gif" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></label><input Style="margin-left:3px;" type="checkbox" name="TestRequisition" id="<%Relationship ID%>"></td><td  class="details"><%Relationship Type%></td><td  class="details"><%Relationship State%></td><td  class="details"><%Relationship Summary%></td><td  class="details text_center">N/A</td><td  class="details" id="trrp"><%Relationship Test Requisition Required Performance%></td><td  class="details"><%Relationship Product Maturity%></td><td  class="details"><%Relationship Project Stage%></td><td  class="details">'+trResult+'</td><td  class="details text_center">N/A</td><td  class="details"><center><img src="<%hosturl%>images/'+imgName+'.png" /></center></td></tr></tbody>');
+												}
+											</script>
+											<%beginrelationshipsdetailL2 Test Sessions for Requisition%>
+												<script>
+													var flag =false;
+													var asOfDate = "<%Relationship Tests As Of Date%>";
+												</script>
+												<tbody class="TSFORTR<%Relationship ID%> hide">
+													<tr>
+														<td  class="details">
+															<img src="<%hosturl%>Velux/reports/images/t_test_session.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 ID%>" target="_blank"><%RelationshipL2 ID%></a>
+															<input style="margin-left:5px;" type="checkbox" name="TestSession" id="<%RelationshipL2 ID%>">
+														</td>
+														<td class="details"><%RelationshipL2 Type%></td>
+														<td class="details"><%RelationshipL2 State%></td>
+														<td  class="details"><%RelationshipL2 Summary%></td>
+														<td class="details text_center" colspan = "7">N/A</td>
+													</tr>
+												</tbody>
+												<%begintestresultdetailL2 verdict=&combinedverdictfilter%>
+													<tbody class="TCFORTS<%RelationshipL2 ID%> hide">
+														<script>
+															flag = true;
+															var verdictResult = "<%testresult Verdict %>";
+															var rowClass;
+															var imgName;
+															
+															if(verdictResult == "Passed" || verdictResult == "Passed With Deviation"){
+																rowClass = "pass_row";
+																imgName = "tc_success";
+															} else if(verdictResult == "Failed"){
+																rowClass = "fail_row";
+																imgName = "tc_failled";
+															} else {
+																rowClass = "other_row";
+																imgName = "tc_other";
+															}
+															<%beginrelationshipsdetailL3 Query[(field[ID]=<%testresult Test ID%>)]%>
+																var ctype = "<%RelationshipL3 Type%>";
+																var cState = "<%RelationshipL3 State%>";
+																var text = "<%RelationshipL3 Text%>";
+																var rrp = "<%RelationshipL3 Expected Results%>"
+															<%endrelationshipsdetailL3%>
+															var rowString = '<tr class="' + rowClass + '"><td  class="details"><img src="<%hosturl%>Velux/reports/images/t_test.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%testresult Test ID%>" target="_blank"><%testresult Test ID%></a></td><td  class="details">' + ctype + '</td><td  class="details">' + cState + '</td><td  class="details">' + text + '</td><td  class="details text_center">' + rrp + '</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details">'+verdictResult+'</td><td  class="details"><%testresult Annotation%></td><td  class="details"><center><img src="<%hosturl%>Velux/reports/images/'+imgName+'.png" /></center></td></tr>';
+															$(".TCFORTS<%RelationshipL2 ID%>").append(rowString);
+														</script>
+													</tbody>
+												<%endtestresultdetailL2%>
+													<script>
+														var tsID = "<%RelationshipL2 ID%>";
+														if(!flag){
+															var rowStr = '<tbody class="TCFORTS'+tsID+' hide"><tr class="' + 'nodata_row' + '"><td  class="details text_center" colspan = "11">NO DATA FOUND!!</td></tr></tbody>';
+															document.write(rowStr);
+														}
+													</script>
+											<%endrelationshipsdetailL2%>
+										<%endrelationshipsdetail%>
+									</tbody>
+								</table>
+								</div>
+							  </div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingEight">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseEight" aria-expanded="true" aria-controls="collapseEight">
+										<h4 class="blue_font">All In Testing Test Requisitions [ Product Maturity is 0-Serie ]</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseEight" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingEight">
+							  <div class="panel-body">
+							  <div class="table-responsive">
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="ExAll" id="exAllReqTable7" data-toggle="tooltip" data-placement="top" title="Expand All"><b>Expand All</button>
+								<span>||</b></span>
+								<button style="background: none!important;border: none;padding: 0!important;font-family: arial, sans-serif;color: #069;text-decoration: underline;cursor: pointer;" class="CoAll" id="coAllReqTable7" data-toggle="tooltip" data-placement="top" title="Collapse All"><b>Collapse All</b></button>
+								<table id="ReqTable7" width="100%" class="table table-bordered">
+									<thead>
+										<tr class="result_header">
+											<th  class="field_headings text_center col-md-1">ID</th>
+											<th  class="field_headings text_center">Type</th>
+											<th  class="field_headings text_center">State</th>
+											<th  class="field_headings text_center">Text/Summary</th>
+											<th  class="field_headings text_center">Requirement Required Performance</th>
+											<th  class="field_headings text_center">Test Requisition Required Performance</th>
+											<th  class="field_headings text_center">Product Maturity</th>
+											<th  class="field_headings text_center">Project Stage</th>
+											<th  class="field_headings text_center">Required By</th>
+											<th  class="field_headings text_center">Result</th>
+											<th  class="field_headings text_center">Tester Comment</th>
+											<th  class="field_headings text_center">Test Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<%beginrelationshipsdetail Requisitions for Test Objective%>
+											<script>
+												var productMaturity = "<%Relationship Product Maturity%>";
+												var state = "<%Relationship State%>";
+												var testStatus = "<%Relationship TR Test Status%>";	
+												var imgName;
+												var	trResult="";											
+												if(testStatus == "TR Failled" ){
+													imgName = "tr_failled";
+													trResult="Failed";
+												}
+												else if(testStatus == "TR Other"){
+													imgName = "tr_other";
+													trResult="Other";
+												}
+												else if(testStatus == "TR Success"){
+													imgName = "tr_success";
+													trResult="Passed";
+												}
+												else{
+													imgName = "tr_pending";
+													trResult="Pending";
+												}
+												if(productMaturity === "0-Serie" && state === "In Testing"){
+													$("#ReqTable7 tbody:last").after('<tbody class="labels"><tr><td class="details"><label for="TestRequisition"><img src="<%hosturl%>Velux/reports/images/book write.gif" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></label><input Style="margin-left:3px;" type="checkbox" name="TestRequisition" id="<%Relationship ID%>"></td><td  class="details"><%Relationship Type%></td><td  class="details"><%Relationship State%></td><td  class="details"><%Relationship Summary%></td><td  class="details text_center">N/A</td><td  class="details" id="trrp"><%Relationship Test Requisition Required Performance%></td><td  class="details"><%Relationship Product Maturity%></td><td  class="details"><%Relationship Project Stage%></td><td class="details"><%Relationship Required By%></td><td  class="details">'+trResult+'</td><td  class="details text_center">N/A</td><td  class="details"><center><img src="<%hosturl%>images/'+imgName+'.png" /></center></td></tr></tbody>');
+												}
+											</script>
+											<%beginrelationshipsdetailL2 Test Sessions for Requisition%>
+												<script>
+													var flag =false;
+													var asOfDate = "<%Relationship Tests As Of Date%>";
+												</script>
+												<tbody class="TSFORTR<%Relationship ID%> hide">
+													<tr>
+														<td  class="details">
+															<img src="<%hosturl%>Velux/reports/images/t_test_session.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%RelationshipL2 ID%>" target="_blank"><%RelationshipL2 ID%></a>
+															<input style="margin-left:5px;" type="checkbox" name="TestSession" id="<%RelationshipL2 ID%>" />
+														</td>
+														<td  class="details"><%RelationshipL2 Type%></td>
+														<td  class="details"><%RelationshipL2 State%></td>
+														<td  class="details"><%RelationshipL2 Summary%></td>
+														<td class="details text_center" colspan = "7">N/A</td>
+													</tr>
+												</tbody>
+												<%begintestresultdetailL2 verdict=&combinedverdictfilter%>
+													<tbody class="TCFORTS<%RelationshipL2 ID%> hide">
+														<script>
+															flag = true;
+															var verdictResult = "<%testresult Verdict %>";
+															var rowClass;
+															var imgName;
+															
+															if(verdictResult == "Passed" || verdictResult == "Passed With Deviation"){
+																rowClass = "pass_row";
+																imgName = "tc_success";
+															} else if(verdictResult == "Failed"){
+																rowClass = "fail_row";
+																imgName = "tc_failled";
+															} else {
+																rowClass = "other_row";
+																imgName = "tc_other";
+															}
+															<%beginrelationshipsdetailL3 Query[(field[ID]=<%testresult Test ID%>)]%>
+																var ctype = "<%RelationshipL3 Type%>";
+																var cState = "<%RelationshipL3 State%>";
+																var text = "<%RelationshipL3 Text%>";
+																var rrp = "<%RelationshipL3 Expected Results%>"
+															<%endrelationshipsdetailL3%>
+															var rowString = '<tr class="' + rowClass + '"><td  class="details"><img src="<%hosturl%>Velux/reports/images/t_test.png" /><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%testresult Test ID%>" target="_blank"><%testresult Test ID%></a></td><td  class="details">' + ctype + '</td><td  class="details">' + cState + '</td><td  class="details">' + text + '</td><td  class="details text_center">' + rrp + '</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details text_center">N/A</td><td  class="details">'+verdictResult+'</td><td  class="details"><%testresult Annotation%></td><td  class="details"><center><img src="<%hosturl%>Velux/reports/images/'+imgName+'.png" /></center></td></tr>';
+															$(".TCFORTS<%RelationshipL2 ID%>").append(rowString);
+														</script>
+													</tbody>
+												<%endtestresultdetailL2%>
+													<script>
+														var tsID = "<%RelationshipL2 ID%>";
+														if(!flag){
+															var rowStr = '<tbody class="TCFORTS'+tsID+' hide"><tr class="' + 'nodata_row' + '"><td  class="details text_center" colspan = "11">NO DATA FOUND!!</td></tr></tbody>';
+															document.write(rowStr);
+														}
+													</script>
+											<%endrelationshipsdetailL2%>
+										<%endrelationshipsdetail%>
+									</tbody>
+								</table>
+								</div>
+							  </div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="center-block">
+						<div class="panel panel-default">
+							<div class="panel-heading active" role="tab" id="headingNine">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseNine" aria-expanded="true" aria-controls="collapseNine">
+										<h4 class="blue_font">All Planned Test Requisitions [ Product Maturity is 0-Serie ]</h4>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseNine" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingNine">
+							  <div class="panel-body">
+							  <div class="table-responsive">
+								<table id="reqTab8" width="100%" class="table table-bordered">
+									<thead>
+										<tr class="result_header">
+											<th class="field_headings text_center">ID</th>
+											<th class="field_headings text_center">State</th>
+											<th  class="field_headings text_center">Summary</th>
+											<!--<th  class="field_headings text_center">Requirement Required Performance</th>-->
+											<th  class="field_headings text_center">Test Requisition Required Performance</th>
+											<th  class="field_headings text_center">Product Maturity</th>
+											<th  class="field_headings text_center">Project Stage</th>
+											<th  class="field_headings text_center">Required By</th>
+										</tr>
+									</thead>
+									<tbody>
+									<%beginrelationshipsdetail Requisitions for Test Objective%>
+										<script>
+											var productMaturity = "<%Relationship Product Maturity%>";
+											var state = "<%Relationship State%>";
+												if(productMaturity === "0-Serie" && (state === "Draft" || state === "Submit" || state === "Accepted" || state === "Rejected")){
+													$("#reqTab8 tbody:last").after('<tbody><tr><td  class="details"><a href="integrity://<%hostname%>:<%hostport%>/im/viewissue?selection=<%Relationship ID%>" target="_blank"><%Relationship ID%></a></td><td class="details"><%Relationship State%></td><td class="details"><%Relationship Summary%></td><td  class="details" id="trrp"><%Relationship Test Requisition Required Performance%></td><td class="details">' + productMaturity + '</td><td class="details"><%Relationship Project Stage%></td><td class="details"><%Relationship Required By%></td></tr></tbody>');
+												}
+										</script>
+									<%endrelationshipsdetail%>
+									</tbody>
+								</table>
+								</div>
+							  </div>
+							</div>
+						</div>
+					</div>
+				  </div>
+				</div>
+			</div>
+		</div>
+		</div>
+		
+		<div class="footer" id="pageFooter">
+			<hr style="background: black;height: 5px;margin-bottom: auto;">
+			<table width="100%">
+				<tr>
+					<td style="float:left;height: 50%;">
+						<a style="margin-left:20px;" href="<%hosturl%>im/runreport?selection=&currentReportName&issues=<%<%builtin ID%>%>">
+							<img src="<%hosturl%>Velux/reports/images/rerun.png" style="margin-top: 10;" data-toggle="tooltip" data-placement="right" title="Re-Run Report for any Update" align="middle" style="float:right;">
+						</a>
+					</td>
+					<td style="float:right;height: 50%;">
+						<!--<button style="margin-right:20px;margin-top:-3px;" onclick="window.print();" class="button_print" class="printMe">Print Report</button>-->
+						<button style="margin-right:20px;margin-top: 15px;" class="button_print" data-toggle="tooltip" data-placement="top" title="Prints Complete Report to PDF" id="printMe">Print Report</button>
+						<!--<button style="margin-right:20px;margin-top:-7px;" onclick="TriggerOutlook();" id="btnExport" class="button_print">Export To Excel</button>-->
+					</td>
+				</tr>
+			</table>
+		</div>
+		<script>
+			function html2clipboard(html, el) {
+				console.log("html2clipboard called");
+				var tmpEl;
+				if (typeof el !== "undefined") {
+					tmpEl = el;
+				} else {
+					tmpEl = document.createElement("div");
+					tmpEl.style.opacity = 0;
+					tmpEl.style.position = "absolute";
+					tmpEl.style.pointerEvents = "none";
+					tmpEl.style.zIndex = -1;
+				}
+				
+				tmpEl.innerHTML = html;
+				document.body.appendChild(tmpEl);
+				var range = document.createRange();
+				range.selectNode(tmpEl);
+				window.getSelection().addRange(range);
+
+				document.execCommand("copy");
+				document.body.removeChild(tmpEl);
+				
+				console.log("html2clipboard completed");
+			}
+			
+			function triggerOutlook() {
+				
+				var testObjLink='integrity://'+"<%hostname%>"+':'+"<%hostport%>"+'/im/viewissue?selection='+"<%<%builtin ID%>%>";
+				var reportLink ='<%hosturl%>'+'im/runreport?selection=&currentReportName&issues='+"<%<%builtin ID%>%>";
+				var clientLink='integrity://'+"<%hostname%>"+':'+"<%hostport%>"+'/im/issues?query=Quick%20Query';
+				
+				var cbBody = '<p style="margin-left:0px;font-family:Calibri,sans-serif;font-size:11.0pt;"><span>&#160;</span><span style="color:#808080;">________________________________________________________________________________</span><span>&#160;</span></p><p style="margin-left:0px;font-family:Calibri,sans-serif;font-size:11.0pt;"><span style="color:#252424;font-family:Segoe UI,sans-serif;">&#160;</span></p><p style="margin-left:0px;font-family:Calibri,sans-serif;font-size:11.0pt;"><span style="color:#006400;font-family:Segoe UI Semibold,sans-serif;font-size:13.5pt;"><a class="share_link" href="'+reportLink+'">View VELUX Verification Plan</a></span><span style="color:#252424;font-family:Segoe UI,sans-serif;">&#160;</span></p><p style="margin-left:0px;font-family:Calibri,sans-serif;font-size:11.0pt;"><span style="color:#006400;font-size:9.0pt;"><font face="Segoe UI,sans-serif"><a class="share_link" href="'+testObjLink+'">VELUX Test Objective</a></font></span><span style="color:#252424;font-family:Segoe UI,sans-serif;">&#160;| </span><span style="color:#006400;font-size:9.0pt;"><font face="Segoe UI,sans-serif"><a class="share_link" class="share_link" href="'+clientLink+'">Integrity Client Link</a></font></span><span style="color:#252424;font-family:Segoe UI,sans-serif;">&#160;</span></p><span style="color:#808080;font-family:Calibri,sans-serif;font-size:11.0pt;">________________________________________________________________________________</span><span style="font-family:Calibri,sans-serif;font-size:11.0pt;">&#160;</span>&#160;' 
+				
+				html2clipboard(cbBody);
+			
+				var emailBody = "Hi,"+String.fromCharCode(13)+String.fromCharCode(13)+"Test Objective Observations:"+String.fromCharCode(13)+"1. "+String.fromCharCode(13)+"2. "+String.fromCharCode(13)+String.fromCharCode(13)+"Following is the link to view VELUX Verification Plan."+String.fromCharCode(13);
+				//var reportLink ='<%hosturl%>'+'im/runreport?selection=&currentReportName&issues='+"<%<%builtin ID%>%>";
+				//emailBody += reportLink+String.fromCharCode(13);
+				var body = escape(emailBody);
+				
+				var subject = window.document.title+ " [ "+"<%<%builtin ID%>%>"+" ]";
+				window.location.href = "mailto:?body="+body+"&subject="+subject;
+				
+			
+			}
+ 
+			function printDiv() {
+			console.log("printDiv Called");
+			    var printContents = document.getElementById("mydiv_y").innerHTML;
+			    var originalContents = document.body.innerHTML;
+			    //document.body.innerHTML = printContents;
+				var newWindow = window.open(printContents); 
+				newWindow.document.write(printContents); 
+				newWindow.print();
+			    //document.body.innerHTML = originalContents;
+			}
+			
+		</script>
+		<script>
+			$(document).ready(function(){
+				$('[data-toggle="tooltip"]').tlp({	
+					html: true,
+					trigger:'hover'
+				});
+				
+				$('input[name="TestRequisition"]').change(function(){
+					var id = $(this).attr("id");
+					var allElements = $(this).parents().nextAll('.TSFORTR' + id);
+					allElements.each(function(){
+						if($(this).hasClass("hide")){
+							$(this).removeClass("hide");
+						}else{
+							$(this).addClass("hide");
+						}
+					});
+					
+					if(!$(this).is(":checked")){
+						var pObject = allElements.children().prevObject;
+						console.log(pObject[0].getElementsByTagName("input"));
+						for(var x=0; x<pObject.length; x++){
+							var inputElement = pObject[x].getElementsByTagName("input");
+							if(inputElement[0].checked){
+								$(inputElement[0]).prop("checked", false);
+								$(inputElement[0]).trigger("change");
+							}
+						}
+					}
+					
+					if($(this).is(":checked")){
+						var pObject = allElements.children().prevObject;
+						console.log(pObject[0].getElementsByTagName("input"));
+						for(var x=0; x<pObject.length; x++){
+							var inputElement = pObject[x].getElementsByTagName("input");
+							if(!inputElement[0].checked){
+								$(inputElement[0]).prop("checked", true);
+								$(inputElement[0]).trigger("change");
+							}
+						}
+					}
+				});
+				
+				$('input[name="TestSession"]').change(function(){
+					var id = $(this).attr("id");
+					var allElements = $(this).parents().nextAll('.TCFORTS' + id);
+					allElements.each(function(){
+						$(this).children("tr").each(function(index){
+							if(index > 0){
+								$(this).remove();
+							}
+						});
+						
+						if($(this).hasClass("hide")){
+							$(this).removeClass("hide");
+						} else{
+							$(this).addClass("hide");
+						}
+					});
+				});
+			
+				
+				$('.panel-collapse').on('show.bs.collapse', function () {
+					$(this).siblings('.panel-heading').addClass('active');
+				});
+				$('.panel-collapse').on('hide.bs.collapse', function () {
+					$(this).siblings('.panel-heading').removeClass('active');
+				});
+				
+				//This is for TRRP
+				$('#trrp table').addClass('tdtable');
+				$('.tdtable > tbody > tr').each(function(){
+					if($(this).find("td:eq(1)").text()==""){
+							$(this).hide();
+					}else{
+						$(this).find("td:first").append(" = ");
+					}	
+				});
+				
+				//this is remove href from printing page
+				
+				$('#printMe').on('click', function(){
+						$('a').removeAttr('href');
+						$('.header').css({'position': 'absolute'});
+						window.print();
+						//$('.tdtable td').css('border': 'none');	
+				});
+				window.onafterprint=function(){
+					window.location.reload(true);
+				}
+				
+				$("#accordionToggleButton").click(function(){
+					var currentText = $(this).text();
+					if(currentText === "Collapse All"){
+						$('.panel-collapse').collapse('hide');
+						$(this).text("Expand All");
+						$(this).tlp('hide').attr('data-original-title','Expand All Sections').tlp('show');
+						//$(this).prop('title','Expand All Sections');
+						$("#pageFooter").css('position','fixed');
+					} else if(currentText === "Expand All"){
+						$('.panel-collapse').collapse('show');
+						$(this).text("Collapse All");
+						$(this).tlp('hide').attr('data-original-title','Collapse All Sections').tlp('show');
+						//$(this).prop('title','Collapse All Sections');
+						$("#pageFooter").css('position','relative');
+					}
+				});
+				
+				$("#exAllReqTable3").click(function(){
+					var table = document.getElementById('ReqTable3');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(!inpEle[0].checked){
+									$(inpEle[0]).prop("checked", true);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#coAllReqTable3").click(function(){
+					var table = document.getElementById('ReqTable3');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(inpEle[0].checked){
+									$(inpEle[0]).prop("checked", false);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#exAllReqTable4").click(function(){
+					var table = document.getElementById('ReqTable4');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(!inpEle[0].checked){
+									$(inpEle[0]).prop("checked", true);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#coAllReqTable4").click(function(){
+					var table = document.getElementById('ReqTable4');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(inpEle[0].checked){
+									$(inpEle[0]).prop("checked", false);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#exAllReqTable6").click(function(){
+					var table = document.getElementById('ReqTable6');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(!inpEle[0].checked){
+									$(inpEle[0]).prop("checked", true);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#coAllReqTable6").click(function(){
+					var table = document.getElementById('ReqTable6');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(inpEle[0].checked){
+									$(inpEle[0]).prop("checked", false);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#exAllReqTable7").click(function(){
+					var table = document.getElementById('ReqTable7');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(!inpEle[0].checked){
+									$(inpEle[0]).prop("checked", true);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				$("#coAllReqTable7").click(function(){
+					var table = document.getElementById('ReqTable7');
+					console.log("Length : "+$(table).find('> tbody > tr').length);
+					$(table).find('> tbody').each(function () {
+						if($(this).attr("class") == "labels"){
+							$(this).children("tr").each(function () {
+								console.log("tr each Func => "+$(this).attr("class"));
+								var inpEle = $(this).find("input");
+								console.log("Checked : "+inpEle[0].checked);
+								if(inpEle[0].checked){
+									$(inpEle[0]).prop("checked", false);
+									$(inpEle[0]).trigger("change");
+								}
+								
+							});	
+						}
+					});
+				});
+				
+				/*
+					$("#btnExport").click(function () {
+						$("#tblExport").excelexportjs({
+							containerid: "ReqTable4"
+							, datatype: 'table'
+						});
+					});
+				
+				
+					function printData(divID) {
+					   var divToPrint=document.getElementById(divID);
+					   newWin= window.open("");
+					   newWin.document.write(divToPrint.outerHTML);
+					   //newWin.print();
+					   //newWin.close();
+					}
+					
+					
+					$("#P_ReqTable3").click(function(){
+						var buttonID = $(this).attr("id");
+						var divID = buttonID.substring(2);
+						console.log("divID : "+divID);
+						printData(divID);
+					});
+				
+				*/
+				
+			});
+		</script>
+	</body>
+	<%enddetail%>
+</html>
